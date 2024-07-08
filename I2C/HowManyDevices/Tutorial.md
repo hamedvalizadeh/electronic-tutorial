@@ -137,3 +137,9 @@ You can also measure the total resistance on the SCL or SDA line with a multimet
 ![](1687974271.jpg)
 
 I hope this article can help you understand the I²C bus a little more.
+
+
+
+
+
+Source: https://bluedot.space/tutorials/how-many-devices-can-you-connect-to-the-i2c-bus/
