@@ -917,7 +917,7 @@ finally click on `Burn Bootloader` from `Tools` menu. if every thing done correc
 
 open `Blink` example sketch, from `Tools` menu select `ATmega328P Stand Alone (HAMED as ISP)` as `Board` and choose an appropriate port, and also select `Arduino as ISP` as the `Programmer`. 
 
-finally press shortcut keys `Ctrl + Shift + U`.  if every thing done correctly the LED connected to the pin 7 of `Arduino Nano` would blinks that indicates the upload is in process and at the end you would see the message `done upload`.
+finally press shortcut keys `Ctrl + Shift + U` (also from `Sketch ` menu, you can click on `Upload Using Programmer`).  if every thing done correctly the LED connected to the pin 7 of `Arduino Nano` would blinks that indicates the upload is in process and at the end you would see the message `done upload`.
 
 now connect and Anode pin of an LED to the pin 19 of `Atmega328P-PU` and connect a 220 Ohm resistor to the Cathode pin of the LED and connect the other pin of resistor to GND. the LED should blinks every 1 second.
 
