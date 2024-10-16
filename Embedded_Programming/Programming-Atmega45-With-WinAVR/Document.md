@@ -98,17 +98,17 @@ so in our program to set the port `PB3` or pin 2 as output, we set the value of 
 
 
 
-after specifying the direction of the pins, now we can read or send voltage from or to it. as we specified all pins as input, except the `PB2`, if we send voltage to the pin that is set to be input, it will not affect the functionality of the input pin, to send logical 1 and 0 to pin `PB2` we send the same for all other pins to simplify our code.
+after specifying the direction of the pins, now we can read or send voltage from or to it. as we specified all pins as input, except the `PB3`, if we send voltage to the pin that is set to be input, it will not affect the functionality of the input pin, to send logical 1 and 0 to pin `PB3` we send the same for all other pins to simplify our code.
 
 to send value to a pin we should use the port register of the desired port, which here is `PORTB`. if we want to send it logical 1 we set it as `0b11111111` and if we want to send it logical 0 we set it as `0b00000000`.
 
-the better solution would be switching the value would between `0b00001000` and `0b00000000`.
+the better solution would be switching the value between `0b00001000` and `0b00000000`.
 
 
 
 # Wiring Programmer
 
-to be able to wire `ATTiny45-20PU` with `USBasp` we need to know the pinout of each. as we mentioned the pinout of `ATTinu45-20PU` in previous section titled `Blink Program`, here we show just `USBasp` programmer pinout as following image:
+to be able to wire `ATTiny45-20PU` with `USBasp` we need to know the pinout of each. as we mentioned the pinout of `ATTinu45-20PU` in previous section titled `Blink Program`, here we show just `USBasp` programmer pinout as the following image:
 
 ![](USBasp-10-pin-cable-pinout.png) 
 
@@ -147,7 +147,7 @@ avrdude -p t45 -c usbasp -B 4
 
 in this command we specified to change internal processing speed of the microcontroller `ATTiny45` to 187.5 kHz, using the `USBasp` as programmed.
 
-if it works successfully you should see the message `avrdude: safemode: Fuses Ok` at the one line before the entire message written in the console.
+if it works successfully you should see the message `avrdude: safemode: Fuses Ok` at the one line before the last line of the entire message written in the console.
 
 
 
@@ -155,7 +155,7 @@ if it works successfully you should see the message `avrdude: safemode: Fuses Ok
 
 to upload program you should configure fuses in microcontroller, build the program code in `main.c` to a file named `main.hex`, and then upload it to the micro.
 
-all of the above needed steps could be done manually with separate commands, but we can pack all them in a file named `Makefile` (name of this file should not has not any postfix extension name). so beside the file `main.c` create file named `Makefile` and copy the following content into it:
+all of the above needed steps could be done manually with separate commands, but we can pack all of them in a file named `Makefile` (name of this file should not has not any extension name). so beside the file `main.c` create file named `Makefile` and copy the following content into it:
 
 ```cmd
 # This makefile is for an ATtiny85 at 1 MHz, USBasp programmer
