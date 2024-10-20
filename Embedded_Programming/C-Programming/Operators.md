@@ -9,6 +9,10 @@
 
 
 
+**HINT:** you can execute `C` codes online in `https://www.onlinegdb.com/online_c_compiler`. 
+
+
+
 # Bitwise Operator
 
 there are some operators to work with bit values in c; these operators support `AND`, `OR`, `NOT`, and `XOR`.
