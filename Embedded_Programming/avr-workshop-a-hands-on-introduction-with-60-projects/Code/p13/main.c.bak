@@ -1,0 +1,34 @@
+// Project 13 - Single Cell Battery Tester
+
+#include <avr/io.h>
+#include <util/delay.h>
+
+void startADC()
+// set up the ADC
+{
+    ADMUX = 0b00100010;  // Set ADC pin to 3
+    ADCSRA = 0b10000011; // Set prescaler speed for 1 MHz
+}
+
+int main(void)
+{
+    DDRB = 0b00000011;  // Set pins 5 and 6 as outputs
+    startADC();
+    for(;;)
+    {	
+        ADCSRA |= (1 << ADSC); // Start ADC measurement
+        while (ADCSRA & (1 << ADSC) ); // Wait until conversion completes
+        _delay_ms(5);
+    
+        if (ADCH >= 71) 
+        {
+            // If ADC input voltage is more than or equal to ~1.4V...
+            PORTB = 0b00000010; // Turn on "battery OK" LED2
+        } else if (ADCH < 71)
+        {
+            // Else, if ADC input voltage is less than ~1.4V...
+            PORTB = 0b00000001; // Turn on "battery not OK" LED1
+        }
+    }
+    return 0;
+}

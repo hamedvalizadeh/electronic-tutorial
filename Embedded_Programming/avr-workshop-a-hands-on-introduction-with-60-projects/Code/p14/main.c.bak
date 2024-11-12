@@ -1,0 +1,54 @@
+// Project 14 - Demonstrating ATmega328P-PU ADC
+
+#include <avr/io.h> 
+#include <math.h>
+#include <util/delay.h>
+
+void startADC() 
+// set up the ADC
+{
+    ADMUX |= (1 << REFS0);                 // Use AVcc pin with ADC
+    ADMUX |= (1 << MUX2) | (1 << MUX0);    // use ADC5 (pin 28)
+    ADCSRA |= (1 << ADPS1) | (1 << ADPS0); // prescaler for 1MHz (/8)
+    ADCSRA |= (1 << ADEN);                 // enable ADC
+} 
+
+int main(void)
+{  
+    uint16_t ADCvalue;
+ 
+    DDRB = 0b11111111; // Set PORTB to outputs
+    DDRD = 0b00000000; // Set PORTD to inputs
+    startADC();
+    for(;;)
+    {
+        // Take reading from potentiometer via ADC
+        ADCSRA |= (1 << ADSC);         // Start ADC measurement
+        while (ADCSRA & (1 << ADSC) ); // Wait for conversion to finish 
+        _delay_ms(10);
+
+	ADCvalue = ADC;
+  	
+	if (ADCvalue>=0 && ADCvalue <256)
+	{
+	    PORTB = 0b00000001;
+	}
+	else if (ADCvalue>=256 && ADCvalue<512)
+	{
+	    PORTB = 0b00000010;
+	}
+	else if (ADCvalue>=512 && ADCvalue<768)
+	{
+	    PORTB = 0b00000100;
+	}
+	else if (ADCvalue>=768 && ADCvalue<1023)
+	{
+	    PORTB = 0b00001000;
+	}
+
+	// Turn off the LEDs in preparation for the next reading
+	_delay_ms(100);
+	PORTB = 0b00000000;
+    }
+    return 0;             
+}
