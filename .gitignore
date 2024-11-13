@@ -1,2 +1,5 @@
 Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Proteus/Project Backups
 Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Proteus/*.workspace
+Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/**/*.elf
+Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/**/*.o
+Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/**/*.hex
