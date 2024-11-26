@@ -75,7 +75,7 @@ if receiver is enabled, it is possible to read data from shift register.
 |    FE    |       0       |     R      | frame error.                                                 |
 |   DOR    |       0       |     R      | data overrun. if 1, it shows that buffer is full and a new character is waiting in the shift register. |
 |    PE    |       0       |     R      | parity error.                                                |
-|   U2X    |       0       |     R      | to double the transmission speed.                            |
+|   U2X    |       0       |     R      | to double the transmission speed. if set, the speed would be doubled. |
 |   MPCM   |       0       |     R      | multi-process communication mode. if set to 1 all the incoming frames, received by the receiver register will be ignored in do not contain address information. this bit has no effect on transmit register behavior. |
 
 
@@ -144,4 +144,25 @@ if receiver is enabled, it is possible to read data from shift register.
 |   1   |   0   |   1   |     Reserved      |
 |   1   |   1   |   0   |     Reserved      |
 |   1   |   1   |   1   |       9-bit       |
+
+
+
+### `UBRR` bits
+
+this register is used setup baud rate. it consists of 2 registers that operate as one, `UBRRH` and `UBRRL`.
+
+each of these 2 registers has 8 bits. first 4 most important bits of `UBRRH` are reserved and do not participate in baud rate configuration. but the remaining 4 less important  bits combined with the bits of `UBRRL` will define the desired baud rate.
+
+the formula to calculate the value for `UBRR` depend on the value of bit `U2X` would be as follow:
+
+- when `U2X` is set
+  - UBRR value = ( ( speed of crystal in `hz ` ) / (8 * desired baud rate) ) - 1
+- when `U2X` is not set
+  - UBRR value = ( ( speed of crystal in `hz ` ) / (16 * desired baud rate) ) - 1
+
+
+
+for example if the desired baud rate is 9600 and crystal is 8 MHZ and `U2X` bit is not set, then the value of `UBRR` would be as follow:
+
+51.083 = ( 8000000 / (16 * 9600 ) ) - 1
 
