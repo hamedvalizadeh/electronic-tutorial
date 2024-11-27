@@ -1,3 +1,56 @@
+# Use ADC in a Nutshell
+
+in order to use `ADC` module we should do the following steps:
+
+1. setup `ADC`; this step at least consists of following configs:
+   1. specify voltage source of `ADC` by using `REFS1` and `REFS0` bits of `ADMUX` register.
+   2. specify `ADC` channel, by using `MUX3`,`MUX2`,`MUX1`, and `MUX0` bits of `ADMUX` register. 
+   3. enable `ADC`, by using `ADEN` bit of `ADCSRA` register.
+   4. config the speed of `ADC` module,  `ADPS2`, `ADPS1`, and `ADPS0` bits of `ADCSRA` register.
+2. read `ADC`; if `ADC` is set in Single Conversion mode by the `ADFR` bit of `ADCSRA` register and direction of result is right aligned by `ADLAR` bit of `ADMUX` register, this step at least consists of following configs:
+   1. start conversion by setting `ADSC` bit of `ADCSRA` register to 1.
+   2. checking if conversion is finished, by inspecting the value in `ADSC` bit to be 0;
+   3. return the value in `ADC` registers.
+3. convert read `ADC` value to what-ever we need, based on our conversion formula.
+
+
+
+following code would be a simple and basic sample to setup and read `ADC` value:
+
+```c
+#include <avr/io.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <util/delay.h>
+
+void setup_adc()
+{
+    // Set External Voltage Source
+    ADMUX |= (1 << REFS0);
+    // Select ADC5 chanell (PC5 - pin number 28)
+    ADMUX |= (1 << MUX2) | (1 << MUX0);
+
+    // enable ADC
+    ADCSRA |= (1 << ADEN);
+    // Set pre-scalar to 8 (we use internal 1 MHZ crystal, so the speed of 125 KHZ for ADC would be suitable)
+    ADCSRA |= (1 << ADPS1) | (1 << ADPS0);
+}
+
+uint16_t read_adc()
+{
+    // start ADC
+    ADCSRA |= (1 << ADSC);
+    while (ADCSRA & (1 << ADSC))
+    {
+    }
+    _delay_ms(5);
+    return ADC;
+}
+```
+
+
+
 # ADC Registers
 
 there are 2 registers in `AVR` microcontrollers, that by the help of them we can setup and configure `ADC`.
@@ -13,7 +66,7 @@ this register is used to select the voltage source and pin of the `ADC`. it has 
 
 |        Bit        |   7   |   6   |   5   |  4   |  3   |  2   |  1   | 0    |
 | :---------------: | :---: | :---: | :---: | :--: | :--: | :--: | :--: | ---- |
-|     **Name**      | REFS1 | REFS2 | ADLAR |  -   | MUX3 | MUX2 | MUX1 | MUX0 |
+|     **Name**      | REFS1 | REFS0 | ADLAR |  -   | MUX3 | MUX2 | MUX1 | MUX0 |
 | **Read / Write**  |  R/W  |  R/W  |  R/W  |  R   | R/W  | R/W  | R/W  | R/W  |
 | **Initial Value** |   0   |   0   |   0   |  0   |  0   |  0   |  0   | 0    |
 
