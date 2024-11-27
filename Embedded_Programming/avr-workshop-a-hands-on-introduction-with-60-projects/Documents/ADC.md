@@ -19,7 +19,7 @@ this register is used to select the voltage source and pin of the `ADC`. it has 
 
 
 
-by setting `REFS1` and `REFS0` we can select which voltage source to be used by `ADC`. following table shows the combination of these bits rsult:
+by setting `REFS1` and `REFS0` we can select which voltage source to be used by `ADC`. following table shows the combination of these bits result:
 
 | REFS1 | REFS0 | Selection Result                                             |
 | ----- | ----- | ------------------------------------------------------------ |
@@ -99,7 +99,7 @@ this register contains the following bits:
 
 **ADC Start Conversion (ADSC):** Setting this bit to logic 1 tells ADC to start the conversion. However, if Single conversion mode is selected, then we need to set this to logic 1 each time we need a conversion to start. Once the conversion is complete, the hardware sets it to zero. This can be considered as a flag to check if the conversion is complete.
 
-**ADC Free Running Select (ADFR**): This bit can be used to toggle ADC into free running mode or single conversion mode. Setting it to 1 activates ADC in free running mode and clearing it sets it to single conversion mode.
+**ADC Free Running Select (ADFR**): This bit can be used to toggle ADC into free running mode or single conversion mode. Setting it to 1 activates ADC in free running mode and clearing this bit sets ADC to single conversion mode.
 **Note:** Some AVR microcontrollers have ADATE instead of ADFR. ADATE serves more complex purpose and used to enable Auto trigger by setting trigger select bits. Best way to know if your microcontroller uses ADFR or ADATE is through the datasheet, although you can verify the same from particular device header file. Higher end AVR versions may have additional ADCSRB register along with ADCSRA register.
 
 **ADC Interrupt Flag (ADIF):** This is an interrupt bit which is set to 1 by hardware once conversion is complete and Data registers are updated. ADC conversion interrupt is executed if ADIE bit and I-bit in SREG is set. ADIE bit is Bit 3 in ADCSRA register and SREG is the status register. To avoid further confusion, status register contains result of the latest arithmetic instruction executed. I-bit is bit 7 in Status register and known as Global interrupt enable.
