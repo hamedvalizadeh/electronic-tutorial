@@ -1,3 +1,45 @@
+# Basic Example
+
+the following code in a simple example of enabling external interrupt on `INT0` (pin 4 or `PD2`) of the `ATmega328p`:
+
+```c
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+
+ISR(INT0_vect)
+{
+    //yuor code ...
+    EIFR &= ~(1 << 0);
+}
+
+void setup_int0()
+{
+    // turn on interrupt on pin 4 (INT0, PD2)
+    EIMSK |= (1 << INT0);
+
+    // st the trigger on rising edge
+    EICRA |= (1 << ISC01) | (1 << ISC00);
+
+    // enable global interrupt flag
+    sei();
+
+    // set the PD2 as input;
+    DDRD &= ~(1 << PORTD2);
+}
+
+int main(void)
+{
+    setup_int0();
+    
+    //yuor code ...
+        
+    return 0;
+}
+```
+
+
+
 # What is Interrupt
 
 there are 2 types of interrupts:
