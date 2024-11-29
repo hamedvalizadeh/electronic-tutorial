@@ -1,7 +1,7 @@
 #include <avr/io.h>
 #include <stdlib.h>
 
-//BAUDRATE 4800
+// BAUDRATE 4800
 #define UBRR_VALUE 12
 
 void USARTInit(void)
