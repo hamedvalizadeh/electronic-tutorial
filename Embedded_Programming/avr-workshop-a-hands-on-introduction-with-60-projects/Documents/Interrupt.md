@@ -124,7 +124,7 @@ this register is used to turn on interrupt function on each of external interrup
 
 ### EIFR Register
 
-it stands for `external interrupt frag register`, and consists of the following bits:
+it stands for `external interrupt flag register`, and consists of the following bits:
 
 | Bit Name      | -    | -    | -    | -    | -    | -    | INTF1 | INTF0 |
 | ------------- | ---- | ---- | ---- | ---- | ---- | ---- | ----- | ----- |
@@ -180,9 +180,9 @@ there is no individual `ISR` function for each `PCINT` pins, whereas there is on
 to config interrupt on any `PCINT` pins, we need to setup following registers:
 
 - PCICR
-- PCIMSK0
-- PCIMSK1
-- PCIMSK2
+- PCMSK0
+- PCMSK1
+- PCMSK2
 - PCIFR
 
 
@@ -208,7 +208,7 @@ bit `PCIE0` corresponds to the Bank 0, so setting it to 1 will enable interrupt 
 
 
 
-### PCIMSK0 Register
+### PCMSK0 Register
 
 it stands for `Pin Change Interrupt Mask 0`, and consists of the following bits:
 
@@ -220,11 +220,11 @@ it stands for `Pin Change Interrupt Mask 0`, and consists of the following bits:
 
 
 
-although setting `PCIE0` will enable interrupt on bank 0, but we also need to enable interrupt on each required pins of the bank. this is done by the helping `PCIMSK0` register.  
+although setting `PCIE0` will enable interrupt on bank 0, but we also need to enable interrupt on each required pins of the bank. this is done by the helping `PCMSK0` register.  
 
 
 
-### PCIMSK1 Register
+### PCMSK1 Register
 
 it stands for `Pin Change Interrupt Mask 1`, and consists of the following bits:
 
@@ -236,11 +236,11 @@ it stands for `Pin Change Interrupt Mask 1`, and consists of the following bits:
 
 
 
-although setting `PCIE1` will enable interrupt on bank 1, but we also need to enable interrupt on each required pins of the bank. this is done by the helping `PCIMSK1` register.  
+although setting `PCIE1` will enable interrupt on bank 1, but we also need to enable interrupt on each required pins of the bank. this is done by the helping `PCMSK1` register.  
 
 
 
-### PCIMSK2 Register
+### PCMSK2 Register
 
 it stands for `Pin Change Interrupt Mask 2, and consists of the following bits:
 
@@ -252,7 +252,7 @@ it stands for `Pin Change Interrupt Mask 2, and consists of the following bits:
 
 
 
-although setting `PCIE2` will enable interrupt on bank 2, but we also need to enable interrupt on each required pins of the bank. this is done by the helping `PCIMSK2` register.  
+although setting `PCIE2` will enable interrupt on bank 2, but we also need to enable interrupt on each required pins of the bank. this is done by the helping `PCMSK2` register.  
 
 
 
