@@ -21,7 +21,7 @@ ISR(INT1_vect)
     // set 0 in PB0
     PORTB |= (0 << PORTB1);
 
-    EIFR &= ~(1 << 0);
+    EIFR &= ~(1 << 1);
 }
 
 void setup_int0()
