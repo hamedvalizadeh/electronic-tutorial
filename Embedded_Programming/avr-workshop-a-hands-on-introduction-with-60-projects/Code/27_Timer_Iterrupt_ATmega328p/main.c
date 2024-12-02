@@ -8,8 +8,8 @@ void setup_timer1_interrupt()
     // set prescalar to 8
     TCCR1B |= (1 << CS11);
 
-    // enable timer counter overflow 0 interrupt
-    TIMSK1 |= (1 << TOIE0);
+    // enable timer counter overflow 1 interrupt
+    TIMSK1 |= (1 << TOIE1);
 
     sei();
 }

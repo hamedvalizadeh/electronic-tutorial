@@ -16,9 +16,10 @@ this timer has following registers:
   - stands for `Timer/Counter 1 High`.
 - TCNT1L
   - stands for `Timer/Counter 1 Low`. the result of counting is stored in this and `TCNT1H` registers.
+- TIMSK1
+  - stands for `Timer Interrupt Mask 1`.
 - TIFR1
   - stands for `Timer Interrupt flag register 1`.
-- TIMSK1
 
 
 
@@ -119,6 +120,19 @@ S: timer clock speed.
 
 
 so if we use internal oscillator of `ATmega328p`, and our pre-scalar is 8, then the speed of timer would be  125000 HZ, and thus the period will be 0.000008 second. it means that in every 0.000008 second, the counter will increment by 1. and thus the maximum amount of `Time1` is 65535, it will takes 0.52428 second for this timer to reach to its max value and to overflow.
+
+
+
+## TIMSK1
+
+this register is used to enable interrupts on `Timer1`, and has the following bits:
+
+| Bit Name      | -    | -    | ICIE1 | -    | -    | OCIE1B | OCIE1A | TOIE1 |
+| ------------- | ---- | ---- | ----- | ---- | ---- | ------ | ------ | ----- |
+| Read/Write    | R    | R    | R/W   | R    | R    | R/W    | R/W    | R/W   |
+| initial value | 0    | 0    | 0     | 0    | 0    | 0      | 0      | 0     |
+
+ 
 
 
 
