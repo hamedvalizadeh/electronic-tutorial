@@ -1,3 +1,109 @@
+# Normal Mode Example
+
+following code will call interrupt function every time that the timer counter register (`TCNT`) reach to its maximum; this time will take 0.52428 second.
+
+we use internal oscillator of `ATmega328p`, and set the timer1 pre-scalar to 8.
+
+```c
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+
+void setup_timer1_interrupt()
+{
+    // set prescalar to 8
+    TCCR1B |= (1 << CS11);
+
+    // enable timer counter overflow 1 interrupt
+    TIMSK1 |= (1 << TOIE1);
+
+    sei();
+}
+
+ISR(TIMER1_OVF_vect)
+{
+    PORTB |= (1 << PORTB1);
+    _delay_ms(100);
+    PORTB &= ~(1 << PORTB1);
+}
+
+int main(void)
+{
+    setup_timer1_interrupt();
+    DDRB |= (1 << PORTB0);
+    DDRB |= (1 << PORTB1);
+    while (1)
+    {
+        PORTB |= (1 << PORTB0);
+        _delay_ms(100);
+        PORTB &= ~(1 << PORTB0);
+        _delay_ms(100);
+    };
+    return 0;
+}
+```
+
+
+
+# CTC Mode Example
+
+following code will call interrupt function every 5 seconds; the interrupt is raised based on the comparison of `TCNT` register period count with the value of `OCR1A`; when-ever it reaches the value of `OCR1A`, then the interrupt function will be called.
+
+we use internal oscillator of `ATmega328p`, and set the timer1 pre-scalar to 1024.
+
+```c
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+
+ISR(TIMER1_COMPA_vect)
+{
+    // TCNT1 = 0;
+    PORTB |= (1 << PORTB1);
+    _delay_ms(1000);
+    PORTB &= ~(1 << PORTB1);
+}
+
+void setup_timer1_ctc_interrupt()
+{
+    // number of periods to watch for.
+    // this is calculated as: OCR1A = round(Seconds / (1 / ( F/Prescalar ) ) ) + 1
+    // OCR1A = round( 5 / ( 1 / ( 1000000 / 1024 ) ) ) + 1 = round( 5 / ( 1 / ( 976.5625 ) ) ) + 1
+    // = round( 5 / ( 0.001024 ) ) + 1 = round( 4882.8125 ) + 1 = 4884
+    OCR1A = 4884;
+
+    // set prescalar to 1024
+    TCCR1B |= (1 << WGM12) | (1 << CS12) | (1 << CS10);
+    // TCCR1B |= (1 << CS12) | (1 << CS10);
+
+    // enable ctc 1 A interrupt
+    TIMSK1 |= (1 << OCIE1A);
+
+    sei();
+}
+
+int main(void)
+{
+    setup_timer1_ctc_interrupt();
+
+    DDRB |= (1 << PORTB0);
+    DDRB |= (1 << PORTB1);
+    while (1)
+    {
+        PORTB |= (1 << PORTB0);
+        _delay_ms(100);
+        PORTB &= ~(1 << PORTB0);
+        _delay_ms(100);
+    };
+
+    return 0;
+}
+```
+
+
+
+
+
 # Timers
 
 in `ATmega328p` there are two 8 bit timers name d`TIMER0` and `TIMER2` that their counter register have maximum value of 255, and one 16 bit timer named `TIMER1` that its counter register has maximum value of 65535.
@@ -47,24 +153,24 @@ the mode is controlled by the help of bits `WGM13`, `WGM12`, `WGM11`, and `WGM10
 
 
 
-| Mode | WGM13 | WGM12 | WGM11 | WGM10 | Timer/Counter Operation Mode     |
-| ---- | ----- | ----- | ----- | ----- | -------------------------------- |
-| 0    | 0     | 0     | 0     | 0     | Normal                           |
-| 1    | 0     | 0     | 0     | 1     | PWM, Phase Correct, 8-bit        |
-| 2    | 0     | 0     | 1     | 0     | PWM, Phase Correct, 9-bit        |
-| 3    | 0     | 0     | 1     | 1     | PWM, Phase Correct, 10-bit       |
-| 4    | 0     | 1     | 0     | 0     | CTC                              |
-| 5    | 0     | 1     | 0     | 1     | Fast PWM, 8-bit                  |
-| 6    | 0     | 1     | 1     | 0     | Fast PWM, 9-bit                  |
-| 7    | 0     | 1     | 1     | 1     | Fast PWM, 10-bit                 |
-| 8    | 1     | 0     | 0     | 0     | PWM, phase and frequency correct |
-| 9    | 1     | 0     | 0     | 1     | PWM, phase and frequency correct |
-| 10   | 1     | 0     | 1     | 0     | PWM, Phase Correct,              |
-| 11   | 1     | 0     | 1     | 1     | PWM, Phase Correct,              |
-| 12   | 1     | 1     | 0     | 0     | CTC                              |
-| 13   | 1     | 1     | 0     | 1     | Reserved                         |
-| 14   | 1     | 1     | 1     | 0     | Fast PWM                         |
-| 15   | 1     | 1     | 1     | 1     | Fast PWM                         |
+| Mode | WGM13 | WGM12 | WGM11 | WGM10 | Timer/Counter Operation Mode     | TOP   |
+| ---- | ----- | ----- | ----- | ----- | -------------------------------- | ----- |
+| 0    | 0     | 0     | 0     | 0     | Normal                           |       |
+| 1    | 0     | 0     | 0     | 1     | PWM, Phase Correct, 8-bit        |       |
+| 2    | 0     | 0     | 1     | 0     | PWM, Phase Correct, 9-bit        |       |
+| 3    | 0     | 0     | 1     | 1     | PWM, Phase Correct, 10-bit       |       |
+| 4    | 0     | 1     | 0     | 0     | CTC                              | OCR1A |
+| 5    | 0     | 1     | 0     | 1     | Fast PWM, 8-bit                  |       |
+| 6    | 0     | 1     | 1     | 0     | Fast PWM, 9-bit                  |       |
+| 7    | 0     | 1     | 1     | 1     | Fast PWM, 10-bit                 |       |
+| 8    | 1     | 0     | 0     | 0     | PWM, phase and frequency correct |       |
+| 9    | 1     | 0     | 0     | 1     | PWM, phase and frequency correct |       |
+| 10   | 1     | 0     | 1     | 0     | PWM, Phase Correct,              |       |
+| 11   | 1     | 0     | 1     | 1     | PWM, Phase Correct,              |       |
+| 12   | 1     | 1     | 0     | 0     | CTC                              | ICR1  |
+| 13   | 1     | 1     | 0     | 1     | Reserved                         |       |
+| 14   | 1     | 1     | 1     | 0     | Fast PWM                         |       |
+| 15   | 1     | 1     | 1     | 1     | Fast PWM                         |       |
 
 
 

@@ -1,6 +1,6 @@
 # Basic External Interrupt Example
 
-the following code in a simple example of enabling external interrupt on `INT0` (pin 4 or `PD2`) of the `ATmega328p`:
+the following code is a simple example of enabling external interrupt on `INT0` (pin 4 or `PD2`) of the `ATmega328p`:
 
 ```c
 #include <avr/io.h>
@@ -9,7 +9,7 @@ the following code in a simple example of enabling external interrupt on `INT0` 
 
 ISR(INT0_vect)
 {
-    //yuor code ...
+    //your code ...
     EIFR &= ~(1 << 0);
 }
 
