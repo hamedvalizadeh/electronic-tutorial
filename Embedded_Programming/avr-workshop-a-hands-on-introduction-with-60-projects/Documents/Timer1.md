@@ -58,7 +58,7 @@ we use internal oscillator of `ATmega328p`, and set the timer1 pre-scalar to 102
 
 ISR(TIMER1_COMPA_vect)
 {
-    // TCNT1 = 0;
+    TCNT1 = 0;
     PORTB |= (1 << PORTB1);
     _delay_ms(1000);
     PORTB &= ~(1 << PORTB1);

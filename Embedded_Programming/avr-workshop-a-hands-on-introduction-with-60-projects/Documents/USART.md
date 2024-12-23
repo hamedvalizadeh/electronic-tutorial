@@ -178,7 +178,7 @@ if receiver is enabled, it is possible to read data from shift register.
 
 
 
-#### `UPM` compination
+#### `UPM` combination
 
 | UPM1 | UPM2 | Result Mode          |
 | ---- | ---- | -------------------- |
