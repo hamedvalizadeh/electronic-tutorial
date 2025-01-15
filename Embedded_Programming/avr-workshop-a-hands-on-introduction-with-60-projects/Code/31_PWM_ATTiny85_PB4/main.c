@@ -8,7 +8,7 @@ void initPWM(void)
 
     // Enable PWM based on comparator OCR1B
     GTCCR |= (1 << PWM1B);
-    // Config the timer 1 pre-scaler to 1.
+    // Config the timer1 pre-scaler to 1.
     TCCR1 |= (1 << CS10);
     // Config the comparer: toggle OC1B (connected to PB4) when TCNT1 (timer 1 counter)
     //                      reaches OCR1B (target)
