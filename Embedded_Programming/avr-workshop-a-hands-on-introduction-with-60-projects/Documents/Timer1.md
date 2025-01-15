@@ -178,7 +178,7 @@ the mode is controlled by the help of bits `WGM13`, `WGM12`, `WGM11`, and `WGM10
 
 
 
-### Time1 Pre-Scalar
+### Timer1 Pre-Scalar
 
 by the help of this value  we can config the speed of counting in each second. by dividing frequency of the `ATmega328p` by the value of the pre-scalar parameter, the speed of the timer will be configured.
 
