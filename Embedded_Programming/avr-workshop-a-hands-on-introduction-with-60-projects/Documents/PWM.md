@@ -141,8 +141,9 @@ finally it is time to set the amount of comparer. based of the chosen port it ca
 #### Example Of ATTiny85 PWM
 
 - PWM on port PB4: https://github.com/hamedvalizadeh/electronic-tutorial/blob/master/Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/31_PWM_ATTiny85_PB4/main.c
-
-
+- PWM on port PB0: https://github.com/hamedvalizadeh/electronic-tutorial/blob/master/Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/31_PWM_ATTiny85_PB0/main.c
+- PWM on port PB1: https://github.com/hamedvalizadeh/electronic-tutorial/blob/master/Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/31_PWM_ATTiny85_PB1/main.c
+- PWM on ports PB0, PB1, and PB4: https://github.com/hamedvalizadeh/electronic-tutorial/blob/master/Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/31_PWM_ATTiny85_PB0_PB1_PB4/main.c
 
 
 
