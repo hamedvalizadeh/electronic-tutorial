@@ -10,7 +10,6 @@ void initPWM(void)
     TCCR0A |= (1 << WGM01) | (1 << WGM00);
     // Config the timer0 pre-scaler to 1.
     TCCR0B |= (1 << CS00);
-    // PB1 0C0B
     // Config the comparer: toggle 0C0B (connected to PB1) when TCNT0 (timer0 counter)
     //                      reaches OCR0B (target)
     TCCR0A |= (1 << COM0B1);
