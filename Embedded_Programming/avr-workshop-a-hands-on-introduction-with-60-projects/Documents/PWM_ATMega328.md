@@ -53,3 +53,4 @@ finally it is time to set the amount of comparer register. based of the chosen p
 # Example Codes
 
 - PWM on PD6: https://github.com/hamedvalizadeh/electronic-tutorial/blob/master/Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/32_PWM_ATmega328p_PD6/main.c
+- PWM on PB1: https://github.com/hamedvalizadeh/electronic-tutorial/blob/master/Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/32_PWM_ATmega328p_PB1/main.c
