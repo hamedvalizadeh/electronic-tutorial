@@ -48,7 +48,11 @@ in practice to calculate this parameter, we need to know following amounts:
 - timer pre-scaler value
 - timer mode
   - Fast
+    - inverted mode
+    - non-inverted mode
   - Phase Correct
+    - inverted mode
+    - non-inverted mode
 
 
 
@@ -64,6 +68,12 @@ f_pwm = f_micro / (pre-scaler * (maximum amount of TCNT))
 
 
 
+following image shows on/off period in fast mode PWM in inverting and non-inverting mode:
+
+![](pwm_fast_mode.png)
+
+
+
 in **Correct Phase** mode the value of the the TCNT register counts up from zero to its maximum value, and upon reaching the maximum value, its values counts down to reach to 0.
 
 so the formula would be as follow:
@@ -73,6 +83,12 @@ f_pwm = f_micro / (pre-scaler * (maximum amount of TCNT) * 2)
 ```
 
 **Example:** in ATTiny85 if we choose pre-scaler to be as 8 and use Timer0 which its TCNT0 max value is 255, and we use internal frequency of micro that is 1 MHZ, then the `f_pwm` will be as `1000000 / (8 * 255 * 2)` which is equal to `245.098 HZ`.
+
+
+
+following image shows on/off period in phase correct mode PWM in inverting and non-inverting mode:
+
+![](pwm_correct_phase_mode.png)
 
 
 
@@ -102,11 +118,9 @@ the setup steps would be as follow:
 
 #### Generate PWM in ATTiny85
 
-in this microcontroller we have three pins capable of PWM, that are PB0, PB1, PB3, and PB4.
+in this microcontroller we have four pins capable of PWM, that are PB0, PB1, PB3, and PB4.
 
-first config the direction of the desired pin as output by the help of `DDRB` register and bits `PORTB0`, `PORTB1`, and `PORTB4`.
-
-
+first config the direction of the desired pin as output by the help of `DDRB` register and bits `PORTB0`, `PORTB1`, `PORTB3`, and `PORTB4`.
 
 then set the timer mode as `FAST`, or `Phase Correct`:
 
@@ -144,6 +158,21 @@ finally it is time to set the amount of comparer. based of the chosen port it ca
 - PWM on port PB0: https://github.com/hamedvalizadeh/electronic-tutorial/blob/master/Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/31_PWM_ATTiny85_PB0/main.c
 - PWM on port PB1: https://github.com/hamedvalizadeh/electronic-tutorial/blob/master/Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/31_PWM_ATTiny85_PB1/main.c
 - PWM on ports PB0, PB1, and PB4: https://github.com/hamedvalizadeh/electronic-tutorial/blob/master/Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/31_PWM_ATTiny85_PB0_PB1_PB4/main.c
+
+
+
+#### Generate PWM in ATMega328
+
+in this microcontroller we have 6 pins capable of generating `PWM`. these are as follow:
+
+| Port Name | Pin Number | Duty Cycle Register |
+| --------- | ---------- | ------------------- |
+| PD6       | 12         | OCR0A               |
+| PD5       | 11         | OCR0B               |
+| PB1       | 15         | OCR1A               |
+| PB2       | 16         | OCR1B               |
+| PB3       | 17         | OCR2A               |
+| PD3       | 5          | OCR2B               |
 
 
 
