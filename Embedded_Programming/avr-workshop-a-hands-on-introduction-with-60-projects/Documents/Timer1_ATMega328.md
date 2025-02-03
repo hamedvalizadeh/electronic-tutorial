@@ -190,6 +190,12 @@ Timer/Counter Control Register 1 B
 
 
 
+ICE1: Input Capture Edge Select 1
+
+ICNC1: Input Capture Noise Canceller 1
+
+
+
 ### Timer1 Mode
 
 the mode is controlled by the help of bits `WGM13`, `WGM12`, `WGM11`, and `WGM10` as following:
@@ -216,6 +222,47 @@ the mode is controlled by the help of bits `WGM13`, `WGM12`, `WGM11`, and `WGM10
 
 
 **HINT:** `WGM` stands for `waveform generation mode`.
+
+
+
+in fast CTC mode, the output frequency of the connected pin, is calculated as follow:
+
+```powershell
+f_oc = f_clk / (2 * N * (1 + OCR) )
+
+f_oc = frequency of connected pin
+f_clk = frequency of microcontroller
+N = pre-scaller of timer
+OCR = value set for the related output compare register
+```
+
+ 
+
+in fast PWM mode, the output frequency of the connected pin, is calculated as follow:
+
+```powershell
+f_oc = f_clk / (N * (1 + TOP)
+
+f_oc = frequency of connected pin
+f_clk = frequency of microcontroller
+N = pre-scaller of timer
+TOP = max ammount of timer that will count in TCNT1.
+```
+
+ 
+
+in Phase Corrected PWM mode, the output frequency of the connected pin, is calculated as follow:
+
+```powershell
+f_oc = f_clk / (2 * N * TOP)
+
+f_oc = frequency of connected pin
+f_clk = frequency of microcontroller
+N = pre-scaller of timer
+TOP = max ammount of timer that will count in TCNT1.
+```
+
+ 
 
 
 
@@ -330,7 +377,7 @@ Output Compare Register A (stores the compare value, 16 bit)
 
 ## ICR1
 
-Input Compare Register (can be used to stores the compare value, 16 bit)
+Input Capture Register (can be used to stores the compare value, 16 bit)
 
 |      | 7 bit | 6 bit | 5 bit | 4 bit | 3 bit | 2 bit | 1 bit | 0 bit |
 | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |

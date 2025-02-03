@@ -31,6 +31,45 @@
 
 
 
+in fast CTC mode, the output frequency of the connected pin, is calculated as follow:
+
+```powershell
+f_oc = f_clk / (2 * N * (1 + OCR) )
+
+f_oc = frequency of connected pin
+f_clk = frequency of microcontroller
+N = pre-scaller of timer
+OCR = value set for the related output compare register
+```
+
+ 
+
+in fast PWM mode, the output frequency of the connected pin, is calculated as follow:
+
+```powershell
+f_oc = f_clk / (N * 256)
+
+f_oc = frequency of connected pin
+f_clk = frequency of microcontroller
+N = pre-scaller of timer
+```
+
+ 
+
+in Phase Corrected PWM mode, the output frequency of the connected pin, is calculated as follow:
+
+```powershell
+f_oc = f_clk / (N * 510)
+
+f_oc = frequency of connected pin
+f_clk = frequency of microcontroller
+N = pre-scaller of timer
+```
+
+ 
+
+
+
 ##### Compare Output Mode A
 
 following tables are similar for `Compare Output Mode B`.
