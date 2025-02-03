@@ -33,6 +33,82 @@ Timer/Counter Control Register 2
 
 
 
+in fast CTC mode, the output frequency of the connected pin, is calculated as follow:
+
+```powershell
+f_oc = f_clk / (2 * N * (1 + OCR) )
+
+f_oc = frequency of connected pin
+f_clk = frequency of microcontroller
+N = pre-scaller of timer
+OCR = value set for the related output compare register
+```
+
+ 
+
+in fast PWM mode, the output frequency of the connected pin, is calculated as follow:
+
+```powershell
+f_oc = f_clk / (N * 256)
+
+f_oc = frequency of connected pin
+f_clk = frequency of microcontroller
+N = pre-scaller of timer
+```
+
+ 
+
+in Phase Corrected PWM mode, the output frequency of the connected pin, is calculated as follow:
+
+```powershell
+f_oc = f_clk / (N * 510)
+
+f_oc = frequency of connected pin
+f_clk = frequency of microcontroller
+N = pre-scaller of timer
+```
+
+ 
+
+##### Compare Output Mode A
+
+following tables are similar for `Compare Output Mode B`.
+
+
+
+following table is for non-PWM mode:
+
+| COM2A1 | COM2A0 |                 Description                 |
+| :----: | :----: | :-----------------------------------------: |
+|   0    |   0    | normal port operation. OC2A is disconnected |
+|   0    |   1    |        toggle OC2A on compare match         |
+|   1    |   0    |         clear OC2A on compare match         |
+|   1    |   1    |          set OC2A on compare match          |
+
+
+
+following table is for Fast PWM mode:
+
+| COM2A1 | COM2A0 |                         Description                          |
+| :----: | :----: | :----------------------------------------------------------: |
+|   0    |   0    |         normal port operation. OC2A is disconnected          |
+|   0    |   1    | **WGM22=0 =>** normal port operation. OC2A is disconnected. **WGM22=1 =>** toggle OC2A on compare match |
+|   1    |   0    | clear OC2A on compare match, set OC2A at BOTTOM => **non-inverting mode** |
+|   1    |   1    | set OC2A on compare match, clear OC2A at BOTTOM => **inverting mode** |
+
+
+
+following table is for phase correct PWM mode:
+
+| COM2A1 | COM2A0 |                         Description                          |
+| :----: | :----: | :----------------------------------------------------------: |
+|   0    |   0    |         normal port operation. OC2A is disconnected          |
+|   0    |   1    | **WGM22=0 =>** normal port operation. OC2A is disconnected. **WGM22=1 =>** toggle OC2A on compare match |
+|   1    |   0    | clear OC2A on compare match when up-counting, set OC2A on compare match when down-counting |
+|   1    |   1    | set OC2A on compare match when up-counting, clear OC2A on compare match when down-counting |
+
+
+
 ##### Config pre-scaling
 
 CS bits Settings
@@ -79,6 +155,22 @@ Output Compare Register 2 (stores the compare value)
 |      | 7 bit | 6 bit | 5 bit | 4 bit | 3 bit | 2 bit | 1 bit | 0 bit |
 | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
 | OCR2 |       |       |       |       |       |       |       |       |
+
+
+
+##### ASSR
+
+Asynchronous Status Register
+
+|          | 7 bit | 6 bit | 5 bit | 4 bit  | 3 bit   | 2 bit   | 1 bit   | 0 bit   |
+| -------- | ----- | ----- | ----- | ------ | ------- | ------- | ------- | ------- |
+| **ASSR** |       | EXCLK | AS2   | TCN2UB | OCR2AUB | OCR2BUB | TCR2AUB | TCR2BUB |
+
+
+
+timer2 has 2 source of clock, one from microcontroller, and the other could be from an external clock. if bit `AS2` is not set the clock source of the timer2 would be the one used for microcontroller, but if bit `AS2` is set as `1`, then the clock source of the timer2 would the external crystal connected to the pins `TOSC1` and `TOSC2` of the microcontroller.
+
+one of the most important use of timer2 is to create a precise timing clock. when pre-scalar is set as 128, and an external crystal of 32678Hz (Clock Crystal) is connected to `TOSC1` and `TOSC2` pins, the frequency of timer2 clock would be exactly 256, which is equal to the maximum size of `TCNT2`, that means in each exact 1 second the `TCNT2` would overflow. based on this exact time we could use the interrupt overflow function to calculate the time.
 
 
 

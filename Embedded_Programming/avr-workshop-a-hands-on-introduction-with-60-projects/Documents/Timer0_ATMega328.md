@@ -68,8 +68,6 @@ N = pre-scaller of timer
 
  
 
-
-
 ##### Compare Output Mode A
 
 following tables are similar for `Compare Output Mode B`.
@@ -106,8 +104,6 @@ following table is for phase correct PWM mode:
 |   0    |   1    | **WGM02=0 =>** normal port operation. OC0A is disconnected. **WGM02=1 =>** toggle OC0A on compare match |
 |   1    |   0    | clear OC0A on compare match when up-counting, set OC0A on compare match when down-counting |
 |   1    |   1    | set OC0A on compare match when up-counting, clear OC0A on compare match when down-counting |
-
-
 
 
 
@@ -155,8 +151,6 @@ following table is for phase correct PWM mode:
 |           | 7 bit | 6 bit | 5 bit | 4 bit | 3 bit | 2 bit | 1 bit | 0 bit |
 | --------- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
 | **OCR0A** |       |       |       |       |       |       |       |       |
-
-
 
 
 
