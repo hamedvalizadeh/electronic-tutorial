@@ -23,6 +23,23 @@ Waveform Generator Mode bits
 
 
 
+Table 18-8. Waveform Generation Mode Bit Description
+
+
+
+| Mode | WGM22 | WGM21 | WGM20 | Timer/Counter Mode of Operation | TOP  | Update of OCRx at | TOV FlagSet on(1)(2) |
+| ---- | ----- | ----- | ----- | ------------------------------- | ---- | ----------------- | -------------------- |
+| 0    | 0     | 0     | 0     | Normal                          | 0xFF | Immediate         | MAX                  |
+| 1    | 0     | 0     | 1     | PWM, Phase Correct              | 0xFF | TOP               | BOTTOM               |
+| 2    | 0     | 1     | 0     | CTC                             | OCRA | Immediate         | MAX                  |
+| 3    | 0     | 1     | 1     | Fast PWM                        | 0xFF | BOTTOM            | MAX                  |
+| 4    | 1     | 0     | 0     | Reserved                        | –    | –                 | –                    |
+| 5    | 1     | 0     | 1     | PWM, Phase Correct              | OCRA | TOP               | BOTTOM               |
+| 6    | 1     | 1     | 0     | Reserved                        | –    | –                 | –                    |
+| 7    | 1     | 1     | 1     | Fast PWM                        | OCRA | BOTTOM            | TOP                  |
+
+
+
 ### TCCR2B
 
 Timer/Counter Control Register 2
@@ -72,40 +89,71 @@ N = pre-scaller of timer
 
 ##### Compare Output Mode A
 
-following tables are similar for `Compare Output Mode B`.
+Compare Output Mode, non-PWM Mode
+
+| COM2A1 | COM2A0 | Description                               |
+| ------ | ------ | ----------------------------------------- |
+| 0      | 0      | Normal port operation, OC0A disconnected. |
+| 0      | 1      | Toggle OC2A on Compare Match              |
+| 1      | 0      | Clear OC2A on Compare Match               |
+| 1      | 1      | Set OC2A on Compare Match                 |
 
 
 
-following table is for non-PWM mode:
+Compare Output Mode, Fast PWM Mode:
 
-| COM2A1 | COM2A0 |                 Description                 |
-| :----: | :----: | :-----------------------------------------: |
-|   0    |   0    | normal port operation. OC2A is disconnected |
-|   0    |   1    |        toggle OC2A on compare match         |
-|   1    |   0    |         clear OC2A on compare match         |
-|   1    |   1    |          set OC2A on compare match          |
-
-
-
-following table is for Fast PWM mode:
-
-| COM2A1 | COM2A0 |                         Description                          |
-| :----: | :----: | :----------------------------------------------------------: |
-|   0    |   0    |         normal port operation. OC2A is disconnected          |
-|   0    |   1    | **WGM22=0 =>** normal port operation. OC2A is disconnected. **WGM22=1 =>** toggle OC2A on compare match |
-|   1    |   0    | clear OC2A on compare match, set OC2A at BOTTOM => **non-inverting mode** |
-|   1    |   1    | set OC2A on compare match, clear OC2A at BOTTOM => **inverting mode** |
+| COM2A1 | COM2A0 | Description                                                  |
+| ------ | ------ | ------------------------------------------------------------ |
+| 0      | 0      | Normal port operation, OC2A disconnected.                    |
+| 0      | 1      | WGM22 = 0: Normal Port Operation, OC0A Disconnected. WGM22 = 1: Toggle OC2A on Compare Match. |
+| 1      | 0      | Clear OC2A on Compare Match, set OC2A at BOTTOM, (non-inverting mode). |
+| 1      | 1      | Set OC2A on Compare Match, clear OC2A at BOTTOM, (inverting mode). |
 
 
 
-following table is for phase correct PWM mode:
+Compare Output Mode, Phase Correct PWM Mode:
 
-| COM2A1 | COM2A0 |                         Description                          |
-| :----: | :----: | :----------------------------------------------------------: |
-|   0    |   0    |         normal port operation. OC2A is disconnected          |
-|   0    |   1    | **WGM22=0 =>** normal port operation. OC2A is disconnected. **WGM22=1 =>** toggle OC2A on compare match |
-|   1    |   0    | clear OC2A on compare match when up-counting, set OC2A on compare match when down-counting |
-|   1    |   1    | set OC2A on compare match when up-counting, clear OC2A on compare match when down-counting |
+| COM2A1 | COM2A0 | Description                                                  |
+| ------ | ------ | ------------------------------------------------------------ |
+| 0      | 0      | Normal port operation, OC2A disconnected.                    |
+| 0      | 1      | WGM22 = 0: Normal Port Operation, OC2A Disconnected. WGM22 = 1: Toggle OC2A on Compare Match. |
+| 1      | 0      | Clear OC2A on Compare Match when up-counting. Set OC2A on Compare Match when down-counting. |
+| 1      | 1      | Set OC2A on Compare Match when up-counting. Clear OC2A on Compare Match when down-counting |
+
+
+
+##### Compare Output Mode B
+
+Compare Output Mode, non-PWM Mode:
+
+| COM2B1 | COM2B0 | Description                               |
+| ------ | ------ | ----------------------------------------- |
+| 0      | 0      | Normal port operation, OC2B disconnected. |
+| 0      | 1      | Toggle OC2B on Compare Match              |
+| 1      | 0      | Clear OC2B on Compare Match               |
+| 1      | 1      | Set OC2B on Compare Match                 |
+
+
+
+Compare Output Mode, Fast PWM Mode:
+
+| COM2B1 | COM2B0 | Description                                                  |
+| ------ | ------ | ------------------------------------------------------------ |
+| 0      | 0      | Normal port operation, OC2B disconnected.                    |
+| 0      | 1      | Reserved                                                     |
+| 1      | 0      | Clear OC2B on Compare Match, set OC2B at BOTTOM, (non-inverting mode). |
+| 1      | 1      | Set OC2B on Compare Match, clear OC2B at BOTTOM, (inverting mode). |
+
+
+
+Compare Output Mode, Phase Correct PWM Mode:
+
+| COM2B1 | COM2B0 | Description                                                  |
+| ------ | ------ | ------------------------------------------------------------ |
+| 0      | 0      | Normal port operation, OC2B disconnected.                    |
+| 0      | 1      | Reserved                                                     |
+| 1      | 0      | Clear OC2B on Compare Match when up-counting. Set OC2B on Compare Match when down-counting. |
+| 1      | 1      | Set OC2B on Compare Match when up-counting. Clear OC2B on Compare Match when down-counting. |
 
 
 
@@ -168,9 +216,9 @@ Asynchronous Status Register
 
 
 
-timer2 has 2 source of clock, one from microcontroller, and the other could be from an external clock. if bit `AS2` is not set the clock source of the timer2 would be the one used for microcontroller, but if bit `AS2` is set as `1`, then the clock source of the timer2 would the external crystal connected to the pins `TOSC1` and `TOSC2` of the microcontroller.
+timer2 has 2 source of clock, one from microcontroller, and the other could be from an external clock. if bit `AS2` is not, set the clock source of the timer2 would be the one used for microcontroller, but if bit `AS2` is set as `1`, then the clock source of the timer2 would be the external crystal connected to the pins `TOSC1` and `TOSC2` of the microcontroller.
 
-one of the most important use of timer2 is to create a precise timing clock. when pre-scalar is set as 128, and an external crystal of 32678Hz (Clock Crystal) is connected to `TOSC1` and `TOSC2` pins, the frequency of timer2 clock would be exactly 256, which is equal to the maximum size of `TCNT2`, that means in each exact 1 second the `TCNT2` would overflow. based on this exact time we could use the interrupt overflow function to calculate the time.
+one of the most important use of timer2 is to create a real timing clock (`RTC`). when pre-scalar is set as 128, and an external crystal of 32678Hz (Clock Crystal) is connected to `TOSC1` and `TOSC2` pins, the frequency of timer2 clock would be exactly 256, which is equal to the maximum size of `TCNT2`, that means in each exact 1 second the `TCNT2` would overflow. based on this exact time we could use the interrupt overflow function to calculate the real time.
 
 
 
