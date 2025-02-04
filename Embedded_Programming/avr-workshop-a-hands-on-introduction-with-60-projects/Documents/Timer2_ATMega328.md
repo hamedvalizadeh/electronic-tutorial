@@ -12,20 +12,7 @@ Timer/Counter Control Register 2
 
 ##### Config Timer Mode
 
-Waveform Generator Mode bits
-
-| MODE | WGM21 | WGM20 | DESCRIPTION         | TOP  |
-| ---- | ----- | ----- | ------------------- | ---- |
-| 0    | 0     | 0     | Normal              | 0xFF |
-| 1    | 0     | 1     | PWM Phase Corrected |      |
-| 2    | 1     | 0     | CTC                 | OCR2 |
-| 3    | 1     | 1     | Fast PWM            |      |
-
-
-
-Table 18-8. Waveform Generation Mode Bit Description
-
-
+Waveform Generation Mode Bit Description:
 
 | Mode | WGM22 | WGM21 | WGM20 | Timer/Counter Mode of Operation | TOP  | Update of OCRx at | TOV FlagSet on(1)(2) |
 | ---- | ----- | ----- | ----- | ------------------------------- | ---- | ----------------- | -------------------- |

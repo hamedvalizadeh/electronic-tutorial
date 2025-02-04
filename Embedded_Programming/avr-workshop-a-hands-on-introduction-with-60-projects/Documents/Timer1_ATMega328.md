@@ -150,10 +150,10 @@ following table is for non-PWM mode:
 
 | COM1A1 | COM1A0 |                 Description                 |
 | :----: | :----: | :-----------------------------------------: |
-|   0    |   0    | normal port operation. OC0A is disconnected |
-|   0    |   1    |        toggle OC0A on compare match         |
-|   1    |   0    |         clear OC0A on compare match         |
-|   1    |   1    |          set OC0A on compare match          |
+|   0    |   0    | normal port operation. OC1A is disconnected |
+|   0    |   1    |        toggle OC1A on compare match         |
+|   1    |   0    |         clear OC1A on compare match         |
+|   1    |   1    |          set OC1A on compare match          |
 
 
 
@@ -161,10 +161,10 @@ following table is for Fast PWM mode:
 
 | COM1A1 | COM1A0 |                         Description                          |
 | :----: | :----: | :----------------------------------------------------------: |
-|   0    |   0    |         normal port operation. OC0A is disconnected          |
+|   0    |   0    |         normal port operation. OC1A is disconnected          |
 |   0    |   1    | **WGM13:0 = 9 or 11 =>** toggle OC1A on compare match, OC1B/OC1C disconnected (normal port operation).  for all other **WGM1** settings  normal port operation (OC1B/OC1C disconnected) |
-|   1    |   0    | clear OC0A on compare match, set OC0A at BOTTOM => **non-inverting mode** |
-|   1    |   1    | set OC0A on compare match, clear OC0A at BOTTOM => **inverting mode** |
+|   1    |   0    | clear OC0A on compare match, set OC1A at BOTTOM => **non-inverting mode** |
+|   1    |   1    | set OC0A on compare match, clear OC1A at BOTTOM => **inverting mode** |
 
 
 
@@ -172,10 +172,10 @@ following table is for phase correct PWM mode:
 
 | COM1A1 | COM1A0 |                         Description                          |
 | :----: | :----: | :----------------------------------------------------------: |
-|   0    |   0    |         normal port operation. OC0A is disconnected          |
+|   0    |   0    |         normal port operation. OC1A is disconnected          |
 |   0    |   1    | **WGM13:0 = 9 or 11 =>** toggle OC1A on compare match,OC1B/OC1C disconnected (normal port operation).  for all other **WGM1** settings  normal port operation (OC1B/OC1C disconnected) |
-|   1    |   0    | clear OC0A on compare match when up-counting, set OC0A on compare match when down-counting |
-|   1    |   1    | set OC0A on compare match when up-counting, clear OC0A on compare match when down-counting |
+|   1    |   0    | clear OC1A on compare match when up-counting, set OC1A on compare match when down-counting |
+|   1    |   1    | set OC1A on compare match when up-counting, clear OC1A on compare match when down-counting |
 
 
 
