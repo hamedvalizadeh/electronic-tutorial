@@ -26,8 +26,9 @@ void timer1_init()
 
 void timer2_init()
 {
-    // Config timer2 mode as FAST PWM
-    TCCR2A |= (1 << WGM21) | (1 << WGM20);
+    // Config timer1 mode as 8 bit FAST PWM
+    TCCR1A |= (1 << WGM10);
+    TCCR1B |= (1 << WGM12);
 
     // Config the timer2 pre-scalar as 8
     TCCR2B |= (1 << CS21);
