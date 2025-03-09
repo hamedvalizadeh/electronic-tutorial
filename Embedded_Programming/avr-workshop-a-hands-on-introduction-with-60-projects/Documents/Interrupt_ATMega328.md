@@ -118,7 +118,7 @@ this register is used to turn on interrupt function on each of external interrup
 
 ​     
 
-**HITT:** a function named `ISR`will be called when .     
+**HITT:** a function named `ISR`will be called when the interrupt occurs.     
 
 
 

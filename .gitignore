@@ -3,3 +3,9 @@ Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Prote
 Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/**/*.elf
 Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/**/*.o
 Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/Code/**/*.hex
+
+Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/SimpleProjects/**/Proteus/Project Backups
+Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/SimpleProjects/**/Proteus/*.workspace
+Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/SimpleProjects/**/Code/*.elf
+Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/SimpleProjects/**/Code/*.o
+Embedded_Programming/avr-workshop-a-hands-on-introduction-with-60-projects/SimpleProjects/**/Code/*.hex
