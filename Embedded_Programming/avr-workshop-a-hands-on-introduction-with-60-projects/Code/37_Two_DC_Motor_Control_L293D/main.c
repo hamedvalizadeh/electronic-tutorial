@@ -8,8 +8,16 @@ void port_init()
     // set the direction of PORTB2 as output to control logic on IN2 pin of L293D
     DDRB |= (1 << PORTB2);
 
-    // set the direction of PORTB3 as output to control PWM on EN1 pin of L293D
+    // set the direction of PORTB3 (OC2A) as output to control PWM on EN1 pin of L293D
     DDRB |= (1 << PORTB3);
+
+    // set the direction of PORTB4 as output to control logic on IN3 pin of L293D
+    DDRB |= (1 << PORTB4);
+    // set the direction of PORTB5 as output to control logic on IN4 pin of L293D
+    DDRB |= (1 << PORTB5);
+
+    // set the direction of PORTD3 (OC2B) as output to control PWM on EN2 pin of L293D
+    DDRD |= (1 << PORTD3);
 }
 
 void timer2_init()
@@ -21,29 +29,44 @@ void timer2_init()
     // Config the timer1 pre-scalar as 8
     TCCR2B |= (1 << CS21);
 
-    // Config OC2A (connected to port PB3) as non-inverting PWM mode
+    // Config OC2A (connected to port PB3) as non-inverting Fast PWM mode
     TCCR2A |= (1 << COM2A1);
+
+    // Config OC2B (connected to port PD3) as non-inverting Fast PWM mode
+    TCCR2A |= (1 << COM2B1);
 }
 
 void motor_forward()
 {
     PORTB |= (1 << PORTB1);
     PORTB &= ~(1 << PORTB2);
+
+    PORTB |= (1 << PORTB4);
+    PORTB &= ~(1 << PORTB5);
 }
 
 void motor_backward()
 {
     PORTB &= ~(1 << PORTB1);
     PORTB |= (1 << PORTB2);
+
+    PORTB &= ~(1 << PORTB4);
+    PORTB |= (1 << PORTB5);
 }
 
 void motor_pwm(uint16_t duty)
 {
-    // Config OC2A (connected to port PB3) as non-inverting PWM mode
+    // Config OC2A (connected to port PB3) as non-inverting FAST PWM mode
     TCCR2A |= (1 << COM2A1);
 
     // set vlue for OCR2A (PORTB3) connected to the EN1 pin of L293D to change speed of the motor
     OCR2A = duty;
+
+    // Config OC2B (connected to port PBD) as non-inverting FAST PWM mode
+    TCCR2A |= (1 << COM2B1);
+
+    // set vlue for OCR2B (PORTD3) connected to the EN2 pin of L293D to change speed of the motor
+    OCR2B = duty;
 }
 
 void motor_on()
@@ -53,6 +76,12 @@ void motor_on()
 
     // set PORTB3 connected to the EN1 pin of L293D as high to run motorwith maximum speed
     PORTB |= (1 << PORTB3);
+
+    // Config PORTD3 as normal mode
+    TCCR2A &= ~(1 << COM2B1);
+
+    // set PORTD3 connected to the EN2 pin of L293D as high to run motorwith maximum speed
+    PORTD |= (1 << PORTD3);
 }
 
 void motor_stop()
@@ -62,6 +91,12 @@ void motor_stop()
 
     // set PORTB3 connected to the EN1 pin of L293D as low to stop motor
     PORTB &= ~(1 << PORTB3);
+
+    // Config PORTD3 as normal mode
+    TCCR2A &= ~(1 << COM2B1);
+
+    // set PORTD3 connected to the EN2 pin of L293D as low to stop motor
+    PORTD &= ~(1 << PORTD3);
 }
 
 int main()
