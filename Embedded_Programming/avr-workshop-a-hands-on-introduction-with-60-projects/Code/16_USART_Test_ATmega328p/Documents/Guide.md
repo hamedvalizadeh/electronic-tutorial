@@ -136,7 +136,11 @@ finally click on connect button; you should see `Hello World` message written on
 
 to be able to simulate the program with proteus, first we need to create 2 virtual ports named `COM1` and `COM2`. 
 
-so download and install `Virtual Serial Port Driver` program from link (( https://p30download.ir/fa/entry/65323/virtual-serial-port-driver )) and create a pair of mentioned port.
+so download and install `Virtual Serial Port Driver (VPSD)` program from link (( https://p30download.ir/fa/entry/65323/virtual-serial-port-driver )) and create a pair of mentioned port.
+
+**Caution:** as `VSPD` is not free, you can use a free software named `Setup com0com` instead.
+
+
 
 then open the file `16_USART_Test_ATmega328p.pdsprj` in proteus and do the following steps:
 

@@ -82,12 +82,11 @@ there are 6 registers in `AVR` microcontrollers, that by the help of them we can
 
 - `UCSRB`
 
-  - USART Control and Status Register A. As the name suggests, it is used to control some needed behavior and then to monitor the result by the help of status flags.
+  - USART Control and Status Register B. As the name suggests, it is used to control some needed behavior and then to monitor the result by the help of status flags.
 
 - `UCSRC`
-
-  - USART Control and Status Register A. As the name suggests, it is used to control some needed behavior and then to monitor the result by the help of status flags.
-
+  - USART Control and Status Register C. As the name suggests, it is used to control some needed behavior and then to monitor the result by the help of status flags.
+  
 - `UBRRL`
 
   - baud rate register. it is used to set the baud rate.
@@ -101,7 +100,7 @@ there are 6 registers in `AVR` microcontrollers, that by the help of them we can
 
 # `UDR` Bits
 
-as mentioned earlier, there are 2 `UDR` registers, one for receive and the other for transmit. these resisters share ethe same I/O address. 
+as mentioned earlier, there are 2 `UDR` registers, one for receive and the other for transmit. these resisters share the same I/O address. 
 
 if transmitter is enabled and data is written to the transmit, then the data will be loaded to the shift register.
 
@@ -133,7 +132,7 @@ if receiver is enabled, it is possible to read data from shift register.
 |   DOR    |       0       |     R      | data overrun. if 1, it shows that buffer is full and a new character is waiting in the shift register. |
 |    PE    |       0       |     R      | parity error.                                                |
 |   U2X    |       0       |     R      | to double the transmission speed. if set, the speed would be doubled. |
-|   MPCM   |       0       |     R      | multi-process communication mode. if set to 1 all the incoming frames, received by the receiver register will be ignored in do not contain address information. this bit has no effect on transmit register behavior. |
+|   MPCM   |       0       |     R      | multi-process communication mode. if set to 1 all the incoming frames, received by the receiver register will be ignored if do not contain address information. this bit has no effect on transmit register behavior. |
 
 
 
