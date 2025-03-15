@@ -1,0 +1,1 @@
+void blinko2_type(int blink_count, int blink_duration);
