@@ -49,6 +49,10 @@ this register is meant to show status of the data being transferred. there are b
 
 ```c
 uint8_t status = TWSR & 0xF8;
+
+or 
+    
+uint8_t status = TWSR & 0b11111000;
 ```
 
 
