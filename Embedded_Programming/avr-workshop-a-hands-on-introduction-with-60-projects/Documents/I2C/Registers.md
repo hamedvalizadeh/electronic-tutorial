@@ -71,7 +71,7 @@ uint8_t status = TWSR & 0b11111000;
 | Data byte received, ACK returned     | `0x50`   | `01010`               |
 | Data byte received, NACK returned    | `0x58`   | `01011`               |
 
-**Caution:** the binary equivalent columns in the above 5 MSB bits of the register, and for the lats 3 LSB bits, consider 0. for example for Hex code `0x08` the precise binary would be `0b00001000`.
+**Caution:** the binary equivalent column in the above table, is 5 MSB bits of the register, so for the lats 3 LSB bits, consider 0. for example for Hex code `0x08` the precise binary would be `0b00001000`.
 
 
 
