@@ -75,6 +75,12 @@ uint8_t status = TWSR & 0b11111000;
 
 
 
+**Caution:** to see all possible status values, refer to 
+
+[]: TWSR_Value.md
+
+
+
 also it is used to set timing pre-scalar used to specify clock speed of `SCL`, by setting bits `TWPS1` and `TWPS0`. as follow:
 
 | TWPS1 | TWPS0 | Pre-scaler |
@@ -203,7 +209,7 @@ uint8_t data = TWDR;                             // Read received byte
 Example code in slave mode to receive data:
 
 ```c
-if (TWSR == 0x80) {  // SLA+W received, data available
+if ((TWSR & 0xF8) == 0x80) {  // SLA+W received, data available
     uint8_t received = TWDR;
     TWDR = received;  // Prepare to send it back (echo)
     TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA);
