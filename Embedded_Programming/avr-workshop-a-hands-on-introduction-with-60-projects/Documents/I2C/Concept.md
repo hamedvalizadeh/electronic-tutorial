@@ -6,7 +6,7 @@ it is a communication method between embedded systems.
 
 # Specification
 
-it is based on master-slave communication method which can be organized with one ore many master connected with one or many slaves. many masters could share one or many slaves and many slaves could share one or many masters. but usually one master is communicating with one or many salves.
+it is based on master-slave communication method which can be organized with one or many master connected with one or many slaves. many masters could share one or many slaves and many slaves could share one or many masters. but usually one master is communicating with one or many salves.
 
 in `I2C` there are 2 wires that are connected between master and slaves, they are as follow:
 
@@ -17,7 +17,7 @@ in `I2C` there are 2 wires that are connected between master and slaves, they ar
 
 # Application
 
-is used for short-distance communication with microcontrollers, microprocessors, LCDs, sensors (Gyroscope, etc.), memory devices (Flash, EEPROM) and is widely used in modern-day embedded hardware.
+it is used for short-distance communication with microcontrollers, microprocessors, LCDs, sensors (Gyroscope, etc.), memory devices (Flash, EEPROM) and is widely used in modern-day embedded hardware.
 
 It's great for short-distance, low-speed communication **on the same PCB** or short cable.
 
