@@ -114,6 +114,7 @@ void mcp23017_write_register(uint8_t reg, uint8_t data)
     i2c_stop();                        // End communication
 }
 
+
 void init_mcp23017()
 {
     // All PORTA as output
