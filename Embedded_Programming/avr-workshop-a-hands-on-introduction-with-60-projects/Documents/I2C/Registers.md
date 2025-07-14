@@ -98,18 +98,37 @@ also it is used to set timing pre-scalar used to specify clock speed of `SCL`, b
 
 # Clock Speed Calculation
 
-by setting `TWBR` register and pre-scalar value through `TWPS1` and `TWPS0` bits of`TWSR` register, we can set the clock speed of `I2C` in  by considering following formula:
+by setting `TWBR` register and pre-scalar value through `TWPS1` and `TWPS0` bits of`TWSR` register, we can set the clock speed of `I2C` using following formula:
 
 ```c
-SCL = (Fcpu) / (16 + (2*TWBR*ps))
+SCL = (F_CPU) / (16 + (2*TWBR*ps))
 
-Fcpu = frequency of microcontroller
+F_CPU = frequency of microcontroller
 ps = pre-scalar
 ```
 
 
 
-if `Fcpu = 16 MHz`, and `TWBR = 72`, and  `ps = 1 (TWPS1 = 0, TWPS0 = 0)`, then the clock speed of `I2C` will be `100 Khz`.
+if `F_CPU = 16 MHz`, and `TWBR = 72`, and  `ps = 1 (TWPS1 = 0, TWPS0 = 0)`, then the clock speed of `I2C` will be `100 Khz`.
+
+
+
+**HINT:** as usually we know the desired speed of `SCL`, the goal is to calculate the value for `TWBR`. so in reality based on the speed we need, we always try to work on the value of the `F_CPU` and `ps` to find the value for the `TWBR`. so the practical formula is the following one:
+
+```
+TWBR = ( ( F_CPU / SCL ) - 16 ) / (2 * ps)
+```
+
+
+
+imagine we need speed of `100,000 Hz (100 KHz)` for `SCL`. so we can test following combinations:
+
+- if we use a `25,000,000 Hz` external crystal oscillator, and set the `ps` to be 1, the value of the `TWBR` will be `( (25,000,000 / 100,000 ) - 16 ) / ( 2 * 1 )` which is equal to `117` that is possible, because `TWBR` is an 8 bits register and `117` fits in it.
+- if we use a `50,000,000 Hz` external crystal oscillator, and set the `ps` to be 1, the value of the `TWBR` will be `( (50,000,000 / 100,000 ) - 16 ) / ( 2 * 1 )` which is equal to `242` that is possible, because `TWBR` is an 8 bits register and `242` fits in it.
+- if we use a `62,500,000 Hz` external crystal oscillator, and set the `ps` to be 1, the value of the `TWBR` will be `( (62,500,000 / 100,000 ) - 16 ) / ( 2 * 1 )` which is approximately equal to `304` that is impossible, because `TWBR` is an 8 bits register and `304` does not fit in it.
+- if we use a `12,000,000 Hz` external crystal oscillator, and set the `ps` to be 4, based the value of the `TWBR` will be `( (12,000,000 / 100,000 ) -16 ) / ( 2 * 4 )` which is equal to `13` that is possible, because `TWBR` is an 8 bits register and 13 fits in it.
+
+
 
 
 
