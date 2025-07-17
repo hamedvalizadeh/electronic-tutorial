@@ -1,4 +1,5 @@
 #include "spi.h"
+#include "max7219.h"
 
 void max7219_write(uint8_t address, uint8_t data)
 {
