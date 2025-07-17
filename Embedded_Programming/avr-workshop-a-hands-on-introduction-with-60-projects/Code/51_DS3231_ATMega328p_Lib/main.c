@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include "spi.h"
+#include "conversion.h"
 
 #define DS3232_ADDR 0x68
 #define DS3232_ADDR_WRITE (DS3232_ADDR << 1)
@@ -16,16 +17,6 @@ typedef struct
     uint8_t month;
     uint8_t year;
 } rtc_time_t;
-
-uint8_t dec_to_bcd(uint8_t val)
-{
-    return ((val / 10) << 4) | (val % 10);
-}
-
-uint8_t bcd_to_dec(uint8_t val)
-{
-    return ((val >> 4) * 10) + (val & 0x0F);
-}
 
 // ----------------------------------- MAX7219
 void max7219_write(uint8_t address, uint8_t data)
