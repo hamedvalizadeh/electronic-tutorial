@@ -17,7 +17,7 @@ CLOCK      = 16000000
 PORT_LX    = /dev/ttyACM0
 PORT_MAC   = /dev/tty.usbmodemfa131
 PROGRAMMER = -c USBasp 
-OBJECTS    = main.o spi.o conversion.o i2c.o
+OBJECTS    = main.o spi.o conversion.o i2c.o max7219.o
 FUSES      = -U lfuse:w:0xff:m -U hfuse:w:0xde:m -U efuse:w:0x05:m
 
 LOCAL_SOURCE = 
