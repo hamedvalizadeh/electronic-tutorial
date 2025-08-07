@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "max7219.h": "c"
+        "max7219.h": "c",
+        "ds3232.h": "c"
     }
 }

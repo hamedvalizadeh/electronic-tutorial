@@ -1,5 +1,9 @@
 #include "i2c.h"
-#include "ds32323.h"
+#include "ds3232.h"
+
+#define DS3232_ADDR 0x68
+#define DS3232_ADDR_WRITE (DS3232_ADDR << 1)
+#define DS3232_ADDR_READ (DS3232_ADDR_WRITE + 1)
 
 void ds3232_set_time(uint8_t sec, uint8_t min, uint8_t hour, uint8_t day_of_week, uint8_t date, uint8_t month, uint8_t year)
 {

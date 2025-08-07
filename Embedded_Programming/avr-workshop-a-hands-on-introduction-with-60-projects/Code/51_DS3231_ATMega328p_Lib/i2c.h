@@ -4,10 +4,6 @@
 
 #include <avr/io.h>
 
-#define DS3232_ADDR 0x68
-#define DS3232_ADDR_WRITE (DS3232_ADDR << 1)
-#define DS3232_ADDR_READ (DS3232_ADDR_WRITE + 1)
-
 void i2c_init();
 void i2c_wait();
 uint8_t i2c_status();

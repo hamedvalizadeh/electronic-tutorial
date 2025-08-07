@@ -2,7 +2,7 @@
 #include <util/delay.h>
 #include "conversion.h"
 #include "max7219.h"
-#include "ds32323.h"
+#include "ds3232.h"
 
 int main(void)
 {
@@ -11,7 +11,7 @@ int main(void)
     max7219_blank();
 
     i2c_init();
-    // // Set time to: 2025-07-15 Tuesday, 14:36:45
+    // HINT: uncomment following code to set time to ((2025-07-15 Tuesday, 14:36:45))
     // ds3232_set_time(45, 36, 14, 2, 15, 7, 25);
     // _delay_ms(1000);
 

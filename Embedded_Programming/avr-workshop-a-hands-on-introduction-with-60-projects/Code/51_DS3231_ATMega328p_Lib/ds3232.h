@@ -3,6 +3,10 @@
 
 #include <avr/io.h>
 
+#define DS3232_ADDR 0x68
+#define DS3232_ADDR_WRITE (DS3232_ADDR << 1)
+#define DS3232_ADDR_READ (DS3232_ADDR_WRITE + 1)
+
 typedef struct
 {
     uint8_t seconds;

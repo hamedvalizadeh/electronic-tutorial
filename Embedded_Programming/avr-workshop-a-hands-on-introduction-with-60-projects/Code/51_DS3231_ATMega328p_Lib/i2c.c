@@ -1,9 +1,5 @@
 #include "i2c.h"
 
-#define DS3232_ADDR 0x68
-#define DS3232_ADDR_WRITE (DS3232_ADDR << 1)
-#define DS3232_ADDR_READ (DS3232_ADDR_WRITE + 1)
-
 void i2c_init()
 {
     // by default TWPS0 and TWPS1 are equal to 0, thus pre-scalar value is 1
