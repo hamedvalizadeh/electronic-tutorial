@@ -6,6 +6,46 @@ i2c_config_t I2C_CONFIG = {
     .wait_ms = 10,
     .retry_count = 5};
 
+typedef enum
+{
+    // ---- Master Transmitter Mode ----
+    I2C_START_TRANSMITTED = 0x08, // 0b00001000: START condition transmitted
+    I2C_REP_START = 0x10,         // 0b00010000: Repeated START condition transmitted
+    I2C_SLA_W_ACK = 0x18,         // 0b00011000: SLA+W transmitted, ACK received
+    I2C_SLA_W_NACK = 0x20,        // 0b00100000: SLA+W transmitted, NACK received
+    I2C_DATA_ACK = 0x28,          // 0b00101000: Data transmitted, ACK received
+    I2C_DATA_NACK = 0x30,         // 0b00110000: Data transmitted, NACK received
+    I2C_ARB_LOST = 0x38,          // 0b00111000: Arbitration lost in SLA+W or data
+
+    // ---- Master Receiver Mode ----
+    I2C_SLA_R_ACK = 0x40,          // 0b01000000: SLA+R transmitted, ACK received
+    I2C_SLA_R_NACK = 0x48,         // 0b01001000: SLA+R transmitted, NACK received
+    I2C_DATA_RECEIVED_ACK = 0x50,  // 0b01010000: Data received, ACK returned
+    I2C_DATA_RECEIVED_NACK = 0x58, // 0b01011000: Data received, NACK returned
+
+    // ---- Slave Transmitter Mode ----
+    I2C_SLA_R_RECEIVED_ACK = 0xA8, // 0b10101000: Own SLA+R received, ACK returned
+    I2C_ARB_LOST_SLA_R_ACK = 0xB0, // 0b10110000: Arbitration lost, SLA+R received, ACK returned
+    I2C_DATA_SENT_ACK = 0xB8,      // 0b10111000: Data transmitted, ACK received
+    I2C_DATA_SENT_NACK = 0xC0,     // 0b11000000: Data transmitted, NACK received
+    I2C_LAST_DATA_SENT_ACK = 0xC8, // 0b11001000: Last data transmitted, ACK received
+
+    // ---- Slave Receiver Mode ----
+    I2C_SLA_W_RECEIVED_ACK = 0x60,     // 0b01100000: Own SLA+W received, ACK returned
+    I2C_ARB_LOST_SLA_W_ACK = 0x68,     // 0b01101000: Arbitration lost, SLA+W received, ACK returned
+    I2C_GCALL_RECEIVED_ACK = 0x70,     // 0b01110000: General call received, ACK returned
+    I2C_ARB_LOST_GCALL_ACK = 0x78,     // 0b01111000: Arbitration lost, general call received, ACK returned
+    I2C_DATA_RECEIVED_SLA_ACK = 0x80,  // 0b10000000: Data received (after SLA+W), ACK returned
+    I2C_DATA_RECEIVED_SLA_NACK = 0x88, // 0b10001000: Data received (after SLA+W), NACK returned
+    I2C_DATA_RECEIVED_GC_ACK = 0x90,   // 0b10010000: Data received (after general call), ACK returned
+    I2C_DATA_RECEIVED_GC_NACK = 0x98,  // 0b10011000: Data received (after general call), NACK returned
+    I2C_STOP_REPEATED_START = 0xA0,    // 0b10100000: STOP or repeated START received while addressed as slave
+
+    // ---- Miscellaneous ----
+    I2C_NO_INFO = 0xF8,  // 0b11111000: No relevant state information (TWINT=0)
+    I2C_BUS_ERROR = 0x00 // 0b00000000: Illegal START or STOP condition
+} i2c_status_code_t;
+
 static uint32_t i2c_ms_to_loops(uint32_t ms)
 {
     // Assume F_CPU in Hz and a simple loop overhead.
@@ -105,11 +145,7 @@ bool i2c_start()
 
         status = i2c_status();
 
-        // Checks if:
-        // status = START condition transmitted [0x08 (0b00001000)]
-        // or
-        // status = Repeated START transmitted [0x10 (0b00010000)]
-        if ((status == 0b00001000) || (status == 0b00010000))
+        if ((status == I2C_START_TRANSMITTED) || (status == I2C_REP_START))
         {
             return true; // success
         }
@@ -172,10 +208,7 @@ bool i2c_start_address(unsigned char address)
         status = i2c_status();
 
         // Checks if NACK received then send stop condition and retry the loop from the first line:
-        // status = SLA+W sent, NACK received [0x20 (0b00100000)]
-        // or
-        // status = data byte received + NACK (used in receiver mode) [0x58 (0b01011000)]
-        if ((status == 0b00100000) || (status == 0b01011000))
+        if ((status == I2C_SLA_W_NACK) || (status == I2C_DATA_RECEIVED_NACK))
         {
             // Here we received NACK so we know that Secondary device is busy.
             i2c_stop();
