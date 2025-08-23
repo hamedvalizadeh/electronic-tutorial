@@ -1,10 +1,19 @@
 #include "i2c.h"
 
-#define I2C_TIMEOUT 50000UL // adjust depending on CPU speed
-
 i2c_config_t I2C_CONFIG = {
-    .scl_freq_hz = 100000, // default 100 kHz
-    .prescaler = 1};
+    .scl_freq_hz = 100000,
+    .prescaler = 1,
+    .wait_ms = 10,
+    .retry_count = 5};
+
+static uint32_t i2c_ms_to_loops(uint32_t ms)
+{
+    // Assume F_CPU in Hz and a simple loop overhead.
+    // Each iteration of while (!(TWCR & (1 << TWINT))) is ~4 CPU cycles
+    // You may adjust this empirically
+    // F_CPU / 1000 gives cycles per millisecond
+    return (F_CPU / 1000UL / 4UL) * ms;
+}
 
 void i2c_init()
 {
@@ -56,7 +65,7 @@ void i2c_init()
 
 bool i2c_wait()
 {
-    uint32_t counter = I2C_TIMEOUT;
+    uint32_t counter = i2c_ms_to_loops(I2C_CONFIG.wait_ms);
 
     // wait until I2C finishes an operation
     // Presumably waits for TWINT to be set again → operation finished
@@ -82,7 +91,7 @@ uint8_t i2c_status()
 bool i2c_start()
 {
     uint8_t status;
-    uint16_t retries = 5; // try a few times before giving up
+    uint8_t retries = I2C_CONFIG.retry_count;
 
     while (retries--)
     {
@@ -106,7 +115,7 @@ bool i2c_start()
         }
     }
 
-    return false; // failed after retries
+    return false;
 }
 
 // send 'data' to I2C bus
@@ -146,13 +155,18 @@ void i2c_stop()
         ;
 }
 
-// arrararara
-void i2c_start_address(unsigned char address)
+bool i2c_start_address(unsigned char address)
 {
     uint8_t status;
-    while (1)
+    uint8_t retries = I2C_CONFIG.retry_count;
+
+    while (retries--)
     {
-        i2c_start();
+        if (!i2c_start())
+        {
+            return false;
+        }
+
         i2c_write(address);
 
         status = i2c_status();
@@ -167,6 +181,11 @@ void i2c_start_address(unsigned char address)
             i2c_stop();
             continue;
         }
-        break;
+
+        return true;
     }
+
+    // Unexpected status → stop and fail
+    i2c_stop();
+    return false;
 }

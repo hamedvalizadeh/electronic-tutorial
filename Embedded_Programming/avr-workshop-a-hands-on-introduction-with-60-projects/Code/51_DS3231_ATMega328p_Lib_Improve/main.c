@@ -13,6 +13,8 @@ int main(void)
 
     I2C_CONFIG.scl_freq_hz = 100000;
     I2C_CONFIG.prescaler = 1;
+    I2C_CONFIG.wait_ms = 15;
+    I2C_CONFIG.retry_count = 5;
 
     i2c_init();
 
