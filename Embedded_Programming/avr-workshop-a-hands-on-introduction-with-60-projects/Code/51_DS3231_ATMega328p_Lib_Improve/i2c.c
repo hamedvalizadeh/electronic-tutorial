@@ -1,28 +1,37 @@
 #include "i2c.h"
 
-// #ifndef F_CPU_NEWI
-// #define F_CPU_NEWI 16000000UL   // default to 16 MHz if not defined
-// #endif
+#define I2C_TIMEOUT 50000UL // adjust depending on CPU speed
 
 i2c_config_t I2C_CONFIG = {
     .scl_freq_hz = 100000, // default 100 kHz
-    .prescaler = 1
-};
+    .prescaler = 1};
 
 void i2c_init()
 {
     uint32_t scl_freq_hz = I2C_CONFIG.scl_freq_hz;
-    uint8_t prescaler    = I2C_CONFIG.prescaler;
+    uint8_t prescaler = I2C_CONFIG.prescaler;
 
     uint8_t twps_val = 0;
 
     // Map prescaler value to TWSR bits
-    switch (prescaler) {
-        case 1:  twps_val = 0; break;  // 00
-        case 4:  twps_val = 1; break;  // 01
-        case 16: twps_val = 2; break;  // 10
-        case 64: twps_val = 3; break;  // 11
-        default: twps_val = 0; prescaler = 1; break; // fallback
+    switch (prescaler)
+    {
+    case 1:
+        twps_val = 0;
+        break; // 00
+    case 4:
+        twps_val = 1;
+        break; // 01
+    case 16:
+        twps_val = 2;
+        break; // 10
+    case 64:
+        twps_val = 3;
+        break; // 11
+    default:
+        twps_val = 0;
+        prescaler = 1;
+        break; // fallback
     }
 
     // Set prescaler bits
@@ -31,7 +40,8 @@ void i2c_init()
     // Compute TWBR value
     uint32_t twbr_val = ((F_CPU / scl_freq_hz) - 16) / (2UL * prescaler);
 
-    if (twbr_val > 255) {
+    if (twbr_val > 255)
+    {
         twbr_val = 255; // clamp to 8-bit max
     }
 
@@ -44,13 +54,21 @@ void i2c_init()
     TWCR = (1 << TWEN);
 }
 
-void i2c_wait()
+bool i2c_wait()
 {
+    uint32_t counter = I2C_TIMEOUT;
+
     // wait until I2C finishes an operation
     // Presumably waits for TWINT to be set again → operation finished
     // Wait until the value of TWINT set to 1. means data transmission completed
     while (!(TWCR & (1 << TWINT)))
-        ;
+    {
+        if (--counter == 0)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 uint8_t i2c_status()
@@ -61,14 +79,20 @@ uint8_t i2c_status()
     return TWSR & 0b11111000;
 }
 
-void i2c_start()
+bool i2c_start()
 {
     uint8_t status;
-    while (1)
+    uint16_t retries = 5; // try a few times before giving up
+
+    while (retries--)
     {
         // Send START condition
         TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
-        i2c_wait();
+
+        if (!i2c_wait())
+        {
+            return false; // timeout on wait
+        }
 
         status = i2c_status();
 
@@ -78,15 +102,11 @@ void i2c_start()
         // status = Repeated START transmitted [0x10 (0b00010000)]
         if ((status == 0b00001000) || (status == 0b00010000))
         {
-            // start condition acknowledgement received. so we can break the loop and continue the code
-            break;
-        }
-        else
-        {
-            // If not → something went wrong → retry loop.
-            continue;
+            return true; // success
         }
     }
+
+    return false; // failed after retries
 }
 
 // send 'data' to I2C bus

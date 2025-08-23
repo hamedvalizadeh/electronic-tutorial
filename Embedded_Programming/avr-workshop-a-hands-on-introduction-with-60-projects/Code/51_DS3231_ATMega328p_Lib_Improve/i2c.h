@@ -3,11 +3,12 @@
 #define I2C_H
 
 #include <avr/io.h>
+#include <stdbool.h>
 
 void i2c_init();
-void i2c_wait();
+bool i2c_wait();
 uint8_t i2c_status();
-void i2c_start();
+bool i2c_start();
 void i2c_write(uint8_t data);
 uint8_t i2c_read_nack();
 uint8_t i2c_read_ack();
