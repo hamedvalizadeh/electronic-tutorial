@@ -180,16 +180,27 @@ uint8_t i2c_read_ack()
     return TWDR;
 }
 
-void i2c_stop()
+bool i2c_stop()
 {
+    uint32_t counter = i2c_ms_to_loops(I2C_CONFIG.wait_ms);
+
     // stop I2C bus and release GPIO pins
     // clear interrupt, enable I2C, generate stop condition
     // send stop to terminate write operation
     TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
+
     // Wait until stop condition is executed and I2C bus is released
     while (TWCR & (1 << TWSTO))
-        ;
+    {
+        if (--counter == 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
+
 
 bool i2c_start_address(unsigned char address)
 {
