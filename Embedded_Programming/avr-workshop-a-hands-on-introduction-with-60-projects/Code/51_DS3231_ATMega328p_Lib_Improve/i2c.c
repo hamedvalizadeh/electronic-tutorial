@@ -154,12 +154,34 @@ bool i2c_start()
     return false;
 }
 
-// send 'data' to I2C bus
-void i2c_write(uint8_t data)
+// Send 'data' to I2C bus, return true if successful
+bool i2c_write(uint8_t data)
 {
     TWDR = data;
     TWCR = (1 << TWINT) | (1 << TWEN);
-    i2c_wait();
+
+    if (!i2c_wait())
+    {
+        // timeout waiting for transmission
+        return false;
+    }
+
+    uint8_t status = i2c_status();
+    if (status == I2C_DATA_ACK)
+    {
+        // success: data transmitted, ACK received
+        return true;
+    }
+    else if (status == I2C_DATA_NACK)
+    {
+        // Slave replied with NACK → device busy or not ready
+        return false;
+    }
+    else
+    {
+        // Unexpected state
+        return false;
+    }
 }
 
 // Read incoming byte of data from I2C bus
@@ -200,7 +222,6 @@ bool i2c_stop()
 
     return true;
 }
-
 
 bool i2c_start_address(unsigned char address)
 {

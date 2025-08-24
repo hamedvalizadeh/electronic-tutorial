@@ -9,7 +9,7 @@ void i2c_init();
 bool i2c_wait();
 uint8_t i2c_status();
 bool i2c_start();
-void i2c_write(uint8_t data);
+bool i2c_write(uint8_t data);
 uint8_t i2c_read_nack();
 uint8_t i2c_read_ack();
 bool i2c_stop();
@@ -22,7 +22,6 @@ typedef struct {
     uint8_t retry_count;
 } i2c_config_t;
 
-// Remove 'const' to allow modification
 extern i2c_config_t I2C_CONFIG;
 
 #endif
