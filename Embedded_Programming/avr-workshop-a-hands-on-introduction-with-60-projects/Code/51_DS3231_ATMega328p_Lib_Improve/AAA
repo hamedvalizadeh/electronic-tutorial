@@ -1,3 +1,4 @@
+*********
 # This makefile is for an ATmega328P-PU at 16 MHz, USBasp programmer
 # 
 # This is a prototype Makefile. Modify it according to your needs.
@@ -17,32 +18,24 @@ CLOCK      = 16000000
 PORT_LX    = /dev/ttyACM0
 PORT_MAC   = /dev/tty.usbmodemfa131
 PROGRAMMER = -c USBasp 
-# For computing fuse byte values for other devices and options see
-# the fuse bit calculator at http://www.engbedded.com/fusecalc/
+OBJECTS    = main.o spi.o conversion.o i2c.o max7219.o ds3232.o
 FUSES      = -U lfuse:w:0xff:m -U hfuse:w:0xde:m -U efuse:w:0x05:m
 
-# Source files
-SRC        = main.c spi.c conversion.c i2c.c max7219.c ds3232.c
+LOCAL_SOURCE = 
 
-# Build folder
-BUILD_DIR  = build
-
-# Object files will be inside build/
-OBJECTS    = $(SRC:%.c=$(BUILD_DIR)/%.o)
+#
+# For computing fuse byte values for other devices and options see
+# the fuse bit calculator at http://www.engbedded.com/fusecalc/
  
 # Tune the lines below only if you know what you are doing:
  
 AVRDUDE = avrdude $(PROGRAMMER) -p $(DEVICE) -B 4
 COMPILE = avr-gcc -Wall -Os -Iusbdrv -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
  
-all: $(BUILD_DIR)/main.hex  
-
-# Ensure build folder exists
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR) 
-
-# Compile .c → .o into build/
-$(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
+# symbolic targets:
+all:    main.hex
+ 
+.c.o:
 	$(COMPILE) -c $< -o $@
  
 .S.o:
@@ -56,8 +49,8 @@ $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
 	$(COMPILE) -S $< -o $@
  
 flash: clean all
-	$(AVRDUDE) -U flash:w:$(BUILD_DIR)/main.hex:i
-
+	$(AVRDUDE) -U flash:w:main.hex:i
+ 
 fuse:
 	$(AVRDUDE) $(FUSES)
  
@@ -69,23 +62,22 @@ load: all
 	bootloadHID main.hex
 
 clean:
-	$(RM) -r $(BUILD_DIR) 
+	$(RM) main.hex main.elf $(OBJECTS)
 
-# Link object files into ELF
-$(BUILD_DIR)/main.elf: $(OBJECTS)
-	$(COMPILE) -o $@ $(OBJECTS)
-
-# Create HEX file from ELF
-$(BUILD_DIR)/main.hex: $(BUILD_DIR)/main.elf
-	avr-objcopy -j .text -j .data -O ihex $< $@
-
+# file targets:
+main.elf: $(OBJECTS)
+	$(COMPILE) -o main.elf $(OBJECTS)
+ 
+main.hex: main.elf
+	rm -f main.hex
+	avr-objcopy -j .text -j .data -O ihex main.elf main.hex
 #   avr-size --format=avr --mcu=$(DEVICE) main.elf
 # If you have an EEPROM section, you must also create a hex file for the
 # EEPROM and add it to the "flash" target.
  
 # Targets for code debugging and analysis:
-disasm: $(BUILD_DIR)/main.elf
-	avr-objdump -d $<
-
+disasm: main.elf
+	avr-objdump -d main.elf
+ 
 cpp:
 	$(COMPILE) -E main.c
