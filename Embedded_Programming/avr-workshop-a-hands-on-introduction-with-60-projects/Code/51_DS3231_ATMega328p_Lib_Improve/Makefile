@@ -22,14 +22,7 @@ PROGRAMMER = -c USBasp
 FUSES      = -U lfuse:w:0xff:m -U hfuse:w:0xde:m -U efuse:w:0x05:m
 
 # Source files
-# SRC        = main.c spi.c conversion.c i2c.c max7219.c ds3232.c
-
-SRC = main.c \
-      lib/spi.c \
-      lib/conversion.c \
-      lib/i2c.c \
-      lib/max7219.c \
-      lib/ds3232.c
+SRC = main.c $(wildcard lib/*.c)
 
 # Build folder
 BUILD_DIR  = build
@@ -37,12 +30,9 @@ BUILD_DIR  = build
 # Object files will be inside build/
 OBJECTS    = $(SRC:%.c=$(BUILD_DIR)/%.o)
  
-# Tune the lines below only if you know what you are doing:
- 
+# Tune the lines below only if you know what you are doing: 
 AVRDUDE = avrdude $(PROGRAMMER) -p $(DEVICE) -B 4
-# COMPILE = avr-gcc -Wall -Os -Iusbdrv -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
 COMPILE = avr-gcc -Wall -Os -Iusbdrv -Ilib -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
-
 
 all: $(BUILD_DIR)/main.hex  
 
@@ -50,15 +40,10 @@ all: $(BUILD_DIR)/main.hex
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR) 
 
-# # Compile .c → .o into build/
-# $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
-# 	$(COMPILE) -c $< -o $@
-
 # Compile .c → .o into build/
 $(BUILD_DIR)/%.o: %.c
 	mkdir -p $(dir $@)
 	$(COMPILE) -c $< -o $@
-
 
 .S.o:
 	$(COMPILE) -x assembler-with-cpp -c $< -o $@
@@ -78,7 +63,7 @@ fuse:
  
 # Xcode uses the Makefile targets "", "clean" and "install"
 install: flash fuse
- 
+
 # if you use a bootloader, change the command below appropriately:
 load: all
 	bootloadHID main.hex
@@ -93,10 +78,6 @@ $(BUILD_DIR)/main.elf: $(OBJECTS)
 # Create HEX file from ELF
 $(BUILD_DIR)/main.hex: $(BUILD_DIR)/main.elf
 	avr-objcopy -j .text -j .data -O ihex $< $@
-
-#   avr-size --format=avr --mcu=$(DEVICE) main.elf
-# If you have an EEPROM section, you must also create a hex file for the
-# EEPROM and add it to the "flash" target.
  
 # Targets for code debugging and analysis:
 disasm: $(BUILD_DIR)/main.elf
