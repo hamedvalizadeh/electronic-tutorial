@@ -84,6 +84,7 @@ void i2c_init()
     }
 
     // Set prescaler bits
+    // 0xFC = 0b11111100 => (TWSR & 0xFC) will set 2 LSB bits of the TWSR to 0
     TWSR = (TWSR & 0xFC) | twps_val;
 
     // Compute TWBR value
@@ -235,7 +236,10 @@ bool i2c_start_address(unsigned char address)
             return false;
         }
 
-        i2c_write(address);
+        if (!i2c_write(address))
+        {
+            return false;
+        }
 
         status = i2c_status();
 

@@ -1,8 +1,0 @@
-ifeq ($(OS),Windows_NT)
-    RM = del /F /Q
-else
-    RM = rm -f
-endif
-
-all:
-	rm -f main.hex main.elf $(OBJECTS) *~
