@@ -22,7 +22,14 @@ PROGRAMMER = -c USBasp
 FUSES      = -U lfuse:w:0xff:m -U hfuse:w:0xde:m -U efuse:w:0x05:m
 
 # Source files
-SRC        = main.c spi.c conversion.c i2c.c max7219.c ds3232.c
+# SRC        = main.c spi.c conversion.c i2c.c max7219.c ds3232.c
+
+SRC = main.c \
+      lib/spi.c \
+      lib/conversion.c \
+      lib/i2c.c \
+      lib/max7219.c \
+      lib/ds3232.c
 
 # Build folder
 BUILD_DIR  = build
@@ -33,18 +40,26 @@ OBJECTS    = $(SRC:%.c=$(BUILD_DIR)/%.o)
 # Tune the lines below only if you know what you are doing:
  
 AVRDUDE = avrdude $(PROGRAMMER) -p $(DEVICE) -B 4
-COMPILE = avr-gcc -Wall -Os -Iusbdrv -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
- 
+# COMPILE = avr-gcc -Wall -Os -Iusbdrv -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
+COMPILE = avr-gcc -Wall -Os -Iusbdrv -Ilib -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
+
+
 all: $(BUILD_DIR)/main.hex  
 
 # Ensure build folder exists
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR) 
 
+# # Compile .c → .o into build/
+# $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
+# 	$(COMPILE) -c $< -o $@
+
 # Compile .c → .o into build/
-$(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: %.c
+	mkdir -p $(dir $@)
 	$(COMPILE) -c $< -o $@
- 
+
+
 .S.o:
 	$(COMPILE) -x assembler-with-cpp -c $< -o $@
 # "-x assembler-with-cpp" should not be necessary since this is the default
