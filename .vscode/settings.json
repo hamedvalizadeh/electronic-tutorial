@@ -2,6 +2,7 @@
     "files.associations": {
         "max7219.h": "c",
         "ds3232.h": "c",
-        "i2c_config.h": "c"
+        "i2c_config.h": "c",
+        "i2c.h": "c"
     }
 }
