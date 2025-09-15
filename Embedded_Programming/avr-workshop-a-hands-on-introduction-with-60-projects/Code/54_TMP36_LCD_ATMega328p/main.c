@@ -39,14 +39,16 @@ int main(void)
     LCD_CONFIG.rows = 2;
     lcd_init();
 
-    adc_init(ADC_REF_AVCC, ADC_PRESCALER_8);
-    adc_select_channel(5);
+    ADC_CONFIG.ref = ADC_REF_AVCC;
+    ADC_CONFIG.prescaler = ADC_PRESCALER_8;
+    ADC_CONFIG.channel = 5;
+    adc_init();
 
     char formated[10];
 
     while (1)
     {
-        adc_val = adc_read();
+        adc_val = adc_read_blocking();
         temp = adc_to_temp_celcius_float(adc_val);
         dtostrf(temp, 9, 3, formated);
 
