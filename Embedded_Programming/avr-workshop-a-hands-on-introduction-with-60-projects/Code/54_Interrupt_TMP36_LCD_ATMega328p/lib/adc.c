@@ -11,51 +11,80 @@
 #define ADC_MAX_CHANNELS 4
 #endif
 
-void adc_init(adc_ref_t ref, adc_prescaler_t prescaler)
+adc_config_t ADC_CONFIG = {
+    .ref = ADC_REF_AVCC,
+    .prescaler = ADC_PRESCALER_64,
+    .adjust = ADC_RIGHT_ADJUST,
+    .channel = 0,
+    .intrruptable = false,
+    .ten_bit = true};
+
+void adc_init(void)
 {
 #if defined(ADMUX)
-#if defined(REFS1) && defined(REFS0)
+    // Set reference voltage
     ADMUX &= ~((1 << REFS1) | (1 << REFS0));
-    ADMUX |= (ref << REFS0);
-#endif
+    ADMUX |= (ADC_CONFIG.ref << REFS0);
+
+    // Set alignment
+    if (ADC_CONFIG.adjust == ADC_LEFT_ADJUST)
+        ADMUX |= (1 << ADLAR);
+    else
+        ADMUX &= ~(1 << ADLAR);
+
+    // Select default channel
+    ADMUX = (ADMUX & 0xF0) | (ADC_CONFIG.channel & 0x0F);
 #endif
 
 #if defined(ADCSRA)
     ADCSRA |= (1 << ADEN); // Enable ADC
+
 #if defined(ADPS2)
     ADCSRA &= ~((1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0));
-    ADCSRA |= prescaler;
+    ADCSRA |= ADC_CONFIG.prescaler;
 #endif
 #endif
+
+    if (ADC_CONFIG.intrruptable)
+    {
+        adc_enable_interrupt(true);
+    }
 }
 
-void adc_select_channel(uint8_t channel)
+uint16_t adc_read_blocking(void)
 {
-    if (channel >= ADC_MAX_CHANNELS)
-        return;
-
-#if defined(ADMUX)
-#if defined(MUX0)
-    ADMUX &= 0xF0;
-    ADMUX |= channel & 0x0F;
-#endif
+#if defined(ADCSRA) && defined(ADSC)
+    adc_start();
+    while (ADCSRA & (1 << ADSC))
+        ;
+    return adc_read();
+#else
+    return 0;
 #endif
 }
 
 uint16_t adc_read(void)
 {
-#if defined(ADCSRA) && defined(ADSC)
-    ADCSRA |= (1 << ADSC); // Start conversion
-    while (ADCSRA & (1 << ADSC))
-        ;
+    uint16_t result = 0;
+    if (ADC_CONFIG.adjust == ADC_LEFT_ADJUST)
+#if defined(ADCH)
+        if (ADC_CONFIG.ten_bit)
+        {
+            result = ((uint16_t)ADCH << 2) | (ADCL >> 6);
+        }
+        else
+        {
+            result = ADCH;
+        }
+#endif
+    else
+    {
 #if defined(ADC)
-    return ADC;
-#else
-    return 0;
+        result = ADC;
 #endif
-#else
-    return 0;
-#endif
+    }
+
+    return result;
 }
 
 void adc_start(void)
@@ -97,7 +126,7 @@ void adc_set_callback(adc_callback_t cb)
 
 ISR(ADC_vect)
 {
-    uint16_t result = ADC; // read ADC result directly
+    uint16_t result = adc_read();
 
     if (adc_user_callback)
     {

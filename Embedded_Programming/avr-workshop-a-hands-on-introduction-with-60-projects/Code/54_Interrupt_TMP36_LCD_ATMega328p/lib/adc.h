@@ -5,10 +5,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// ADC callback type
 typedef void (*adc_callback_t)(uint16_t result);
 
-// ADC reference voltage options
 typedef enum
 {
 #if defined(REFS1) && defined(REFS0)
@@ -20,7 +18,6 @@ typedef enum
 #endif
 } adc_ref_t;
 
-// ADC prescaler options
 typedef enum
 {
 #if defined(ADPS2)
@@ -36,25 +33,30 @@ typedef enum
 #endif
 } adc_prescaler_t;
 
-// Initialize ADC
-void adc_init(adc_ref_t ref, adc_prescaler_t prescaler);
+typedef enum
+{
+    ADC_RIGHT_ADJUST = 0,
+    ADC_LEFT_ADJUST = 1
+} adc_adjust_t;
 
-// Select ADC channel (0..MAX)
-void adc_select_channel(uint8_t channel);
+typedef struct
+{
+    adc_ref_t ref;
+    adc_prescaler_t prescaler;
+    adc_adjust_t adjust;
+    uint8_t channel;
+    bool intrruptable;
+    bool ten_bit;
+} adc_config_t;
 
-// Read ADC value (blocking)
+void adc_init(void);
+uint16_t adc_read_blocking(void);
 uint16_t adc_read(void);
-
-// Register a user callback for ADC interrupt
+void adc_start(void);
+void adc_enable_interrupt(bool enable);
+bool adc_conversion_done(void);
 void adc_set_callback(adc_callback_t cb);
 
-// Start ADC conversion (non-blocking)
-void adc_start(void);
-
-// Enable/disable ADC interrupt
-void adc_enable_interrupt(bool enable);
-
-// Check if conversion finished (polling)
-bool adc_conversion_done(void);
+extern adc_config_t ADC_CONFIG;
 
 #endif // ADC_H

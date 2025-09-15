@@ -10,7 +10,7 @@
 uint8_t adc_to_temp_celcius(uint16_t adc_val)
 {
     float volt = (adc_val * 5);
-    volt = volt / 1024;
+    volt = volt / 256;
     float temp = ((volt - 0.5) * 100);
     return ((uint8_t)round(temp));
 }
@@ -23,7 +23,23 @@ float adc_to_temp_celcius_float(uint16_t adc_val)
     return temp;
 }
 
-void adc__interrupt_handler(uint16_t adc_val)
+void adc__interrupt_handler_8bit(uint16_t adc_val)
+{
+    uint8_t temp = adc_to_temp_celcius(adc_val);
+    char formated[4];
+
+    itoa(temp, formated, 10);
+
+    lcd_clear();
+    lcd_set_cursor(0, 0);
+    lcd_print("Temp_1:");
+    lcd_set_cursor(7, 0);
+    lcd_print(formated);
+
+    _delay_ms(1000);
+}
+
+void adc__interrupt_handler_10bit(uint16_t adc_val)
 {
     float temp = adc_to_temp_celcius_float(adc_val);
     char formated[10];
@@ -53,13 +69,19 @@ int main(void)
     LCD_CONFIG.rows = 2;
     lcd_init();
 
-    adc_init(ADC_REF_AVCC, ADC_PRESCALER_8);
-    adc_select_channel(5);
-    adc_enable_interrupt(true);
-    adc_set_callback(adc__interrupt_handler);
+    ADC_CONFIG.ref = ADC_REF_AVCC;
+    ADC_CONFIG.prescaler = ADC_PRESCALER_8;
+    ADC_CONFIG.adjust = ADC_LEFT_ADJUST;
+    ADC_CONFIG.channel = 5;
+    ADC_CONFIG.intrruptable = true;
+    ADC_CONFIG.ten_bit = true;
+    adc_init();
+    adc_set_callback(adc__interrupt_handler_10bit);
 
-    sei(); // enable global interrupts
-    adc_start(); // start first conversion
+    // enable global interrupts
+    sei();
+
+    adc_start();
 
     while (1)
     {
