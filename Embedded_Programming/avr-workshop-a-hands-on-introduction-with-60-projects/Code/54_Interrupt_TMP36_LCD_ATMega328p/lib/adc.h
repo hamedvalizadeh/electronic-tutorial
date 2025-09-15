@@ -3,6 +3,10 @@
 
 #include <avr/io.h>
 #include <stdint.h>
+#include <stdbool.h>
+
+// ADC callback type
+typedef void (*adc_callback_t)(uint16_t result);
 
 // ADC reference voltage options
 typedef enum
@@ -40,5 +44,17 @@ void adc_select_channel(uint8_t channel);
 
 // Read ADC value (blocking)
 uint16_t adc_read(void);
+
+// Register a user callback for ADC interrupt
+void adc_set_callback(adc_callback_t cb);
+
+// Start ADC conversion (non-blocking)
+void adc_start(void);
+
+// Enable/disable ADC interrupt
+void adc_enable_interrupt(bool enable);
+
+// Check if conversion finished (polling)
+bool adc_conversion_done(void);
 
 #endif // ADC_H

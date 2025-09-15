@@ -13,7 +13,6 @@
 void adc_init(adc_ref_t ref, adc_prescaler_t prescaler)
 {
 #if defined(ADMUX)
-    // Clear reference selection bits if present
 #if defined(REFS1) && defined(REFS0)
     ADMUX &= ~((1 << REFS1) | (1 << REFS0));
     ADMUX |= (ref << REFS0);
@@ -21,10 +20,7 @@ void adc_init(adc_ref_t ref, adc_prescaler_t prescaler)
 #endif
 
 #if defined(ADCSRA)
-    // Enable ADC
-    ADCSRA |= (1 << ADEN);
-
-    // Set prescaler if available
+    ADCSRA |= (1 << ADEN); // Enable ADC
 #if defined(ADPS2)
     ADCSRA &= ~((1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0));
     ADCSRA |= prescaler;
@@ -35,11 +31,10 @@ void adc_init(adc_ref_t ref, adc_prescaler_t prescaler)
 void adc_select_channel(uint8_t channel)
 {
     if (channel >= ADC_MAX_CHANNELS)
-        return; // prevent out-of-bounds
+        return;
 
 #if defined(ADMUX)
 #if defined(MUX0)
-    // Clear previous channel bits
     ADMUX &= 0xF0;
     ADMUX |= channel & 0x0F;
 #endif
@@ -49,20 +44,45 @@ void adc_select_channel(uint8_t channel)
 uint16_t adc_read(void)
 {
 #if defined(ADCSRA) && defined(ADSC)
-    // Start conversion
-    ADCSRA |= (1 << ADSC);
-
-    // Wait for conversion to finish
+    ADCSRA |= (1 << ADSC); // Start conversion
     while (ADCSRA & (1 << ADSC))
         ;
-
 #if defined(ADC)
     return ADC;
 #else
     return 0;
 #endif
-
 #else
     return 0;
+#endif
+}
+
+void adc_start(void)
+{
+#if defined(ADCSRA) && defined(ADSC)
+    ADCSRA |= (1 << ADSC);
+#endif
+}
+
+void adc_enable_interrupt(bool enable)
+{
+#if defined(ADCSRA) && defined(ADIE)
+    if (enable)
+    {
+        ADCSRA |= (1 << ADIE); // Enable ADC interrupt
+    }
+    else
+    {
+        ADCSRA &= ~(1 << ADIE); // Disable ADC interrupt
+    }
+#endif
+}
+
+bool adc_conversion_done(void)
+{
+#if defined(ADCSRA) && defined(ADIF)
+    return (ADCSRA & (1 << ADIF));
+#else
+    return false;
 #endif
 }
