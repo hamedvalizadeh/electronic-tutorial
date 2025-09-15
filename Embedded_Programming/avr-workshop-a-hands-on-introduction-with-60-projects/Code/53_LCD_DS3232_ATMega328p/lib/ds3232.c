@@ -1,11 +1,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "i2c.h"
+#include "conversion.h"
 #include "ds3232.h"
 
 #define DS3232_ADDR 0x68
 #define DS3232_ADDR_WRITE (DS3232_ADDR << 1)
 #define DS3232_ADDR_READ (DS3232_ADDR_WRITE + 1)
+
+void ds3232_bus_init(uint32_t scl_freq, uint8_t prescaler, uint8_t wait_ms, uint8_t retries)
+{
+    I2C_CONFIG.scl_freq_hz = scl_freq;
+    I2C_CONFIG.prescaler = prescaler;
+    I2C_CONFIG.wait_ms = wait_ms;
+    I2C_CONFIG.retry_count = retries;
+    i2c_init();
+}
 
 void ds3232_set_time(uint8_t sec, uint8_t min, uint8_t hour, uint8_t day_of_week, uint8_t date, uint8_t month, uint8_t year)
 {

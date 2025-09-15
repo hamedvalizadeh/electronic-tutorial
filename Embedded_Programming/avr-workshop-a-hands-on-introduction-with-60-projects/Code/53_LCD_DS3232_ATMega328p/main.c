@@ -1,7 +1,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include "conversion.h"
-#include "i2c.h"
 #include "ds3232.h"
 #include <stdlib.h>
 #include <stdbool.h>
@@ -21,11 +20,7 @@ int main(void)
     LCD_CONFIG.rows = 2;
     lcd_init();
 
-    I2C_CONFIG.scl_freq_hz = 100000;
-    I2C_CONFIG.prescaler = 1;
-    I2C_CONFIG.wait_ms = 15;
-    I2C_CONFIG.retry_count = 5;
-    i2c_init();
+    ds3232_bus_init(100000, 1, 15, 5);
 
     // // HINT: uncomment following code to set time to ((2025-07-15 Tuesday, 14:36:45))
     // ds3232_set_time(45, 36, 14, 2, 15, 7, 25);
