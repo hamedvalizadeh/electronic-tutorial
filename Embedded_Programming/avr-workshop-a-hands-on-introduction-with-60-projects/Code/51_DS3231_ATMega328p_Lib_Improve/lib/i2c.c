@@ -126,7 +126,8 @@ uint8_t i2c_status()
     // Mask three LSB bits:
     // - Only keep bits 7–3 (status code)
     // - Discard prescaler/reserved bits (bits 2–0)
-    return TWSR & 0b11111000;
+    // - 0b11111000 = 0xF8
+    return TWSR & 0xF8;
 }
 
 bool i2c_start()

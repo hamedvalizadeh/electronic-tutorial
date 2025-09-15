@@ -14,6 +14,7 @@
  
 DEVICE     = atmega328p
 CLOCK      = 16000000
+CFLAGS = -Wall -Os -Wextra -Werror -std=c99 -pedantic -Iusbdrv -Ilib -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
 PORT_LX    = /dev/ttyACM0
 PORT_MAC   = /dev/tty.usbmodemfa131
 PROGRAMMER = -c USBasp 
@@ -32,7 +33,9 @@ OBJECTS    = $(SRC:%.c=$(BUILD_DIR)/%.o)
  
 # Tune the lines below only if you know what you are doing: 
 AVRDUDE = avrdude $(PROGRAMMER) -p $(DEVICE) -B 4
-COMPILE = avr-gcc -Wall -Os -Iusbdrv -Ilib -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
+# COMPILE = avr-gcc -Wall -Os -Iusbdrv -Ilib -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
+COMPILE = avr-gcc $(CFLAGS)
+
 
 all: $(BUILD_DIR)/main.hex  
 

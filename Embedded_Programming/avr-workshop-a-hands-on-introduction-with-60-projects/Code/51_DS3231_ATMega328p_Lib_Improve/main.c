@@ -1,8 +1,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
-#include "conversion.h"
+#include "spi.h"
 #include "max7219.h"
-#include "i2c.h"
 #include "ds3232.h"
 
 int main(void)
@@ -11,12 +10,7 @@ int main(void)
     max7219_setup();
     max7219_blank();
 
-    I2C_CONFIG.scl_freq_hz = 100000;
-    I2C_CONFIG.prescaler = 1;
-    I2C_CONFIG.wait_ms = 15;
-    I2C_CONFIG.retry_count = 5;
-
-    i2c_init();
+    ds3232_bus_init(100000, 1, 15, 5);
 
     // HINT: uncomment following code to set time to ((2025-07-15 Tuesday, 14:36:45))
     // ds3232_set_time(45, 36, 14, 2, 15, 7, 25);
