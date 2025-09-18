@@ -67,16 +67,20 @@ uint16_t adc_read(void)
 {
     uint16_t result = 0;
     if (ADC_CONFIG.adjust == ADC_LEFT_ADJUST)
+    {
 #if defined(ADCH)
+        uint8_t low = ADCL;
+        uint8_t high = ADCH;
         if (ADC_CONFIG.ten_bit)
         {
-            result = ((uint16_t)ADCH << 2) | (ADCL >> 6);
+            result = ((uint16_t)high << 2) | (low >> 6);
         }
         else
         {
-            result = ADCH;
+            result = high;
         }
 #endif
+    }
     else
     {
 #if defined(ADC)

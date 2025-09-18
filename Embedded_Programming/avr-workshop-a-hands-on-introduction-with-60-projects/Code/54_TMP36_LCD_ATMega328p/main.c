@@ -4,28 +4,14 @@
 #include <stdbool.h>
 #include "lcd_lq.h"
 #include "adc.h"
+#include "tmp36.h"
 #include <math.h>
 
-uint8_t adc_to_temp_celcius(uint16_t adc_val)
+void set_configs()
 {
-    float volt = (adc_val * 5);
-    volt = volt / 1024;
-    float temp = ((volt - 0.5) * 100);
-    return ((uint8_t)round(temp));
-}
-
-float adc_to_temp_celcius_float(uint16_t adc_val)
-{
-    float volt = (adc_val * 5);
-    volt = volt / 1024;
-    float temp = ((volt - 0.5) * 100);
-    return temp;
-}
-
-int main(void)
-{
-    uint16_t adc_val;
-    float temp;
+    TMP36_CONFIG.vref_mv = 5000;
+    TMP36_CONFIG.precision = TMP36_PRECISION_10BIT;
+    TMP36_CONFIG.unit = TMP36_UNIT_CELSIUS;
 
     LCD_CONFIG.port = &PORTD;
     LCD_CONFIG.ddr = &DDRD;
@@ -37,28 +23,41 @@ int main(void)
     LCD_CONFIG.d7 = PORTD7;
     LCD_CONFIG.cols = 16;
     LCD_CONFIG.rows = 2;
-    lcd_init();
 
     ADC_CONFIG.ref = ADC_REF_AVCC;
     ADC_CONFIG.prescaler = ADC_PRESCALER_8;
+    ADC_CONFIG.adjust = ADC_LEFT_ADJUST;
     ADC_CONFIG.channel = 5;
-    adc_init();
+    ADC_CONFIG.intrruptable = false;
+    ADC_CONFIG.ten_bit = true;
+}
 
-    char formated[10];
+void display_temp()
+{
+    uint16_t adc_val = adc_read_blocking();
+    float temp = tmp36_convert(adc_val);
+
+    char buffer[10];
+    dtostrf(temp, 6, 2, buffer);
+
+    lcd_clear();
+    lcd_set_cursor(0, 0);
+    lcd_print("Temp:");
+    lcd_set_cursor(6, 0);
+    lcd_print(buffer);
+
+    _delay_ms(1000);
+}
+
+int main(void)
+{
+    set_configs();
+    lcd_init();
+    adc_init();
 
     while (1)
     {
-        adc_val = adc_read_blocking();
-        temp = adc_to_temp_celcius_float(adc_val);
-        dtostrf(temp, 9, 3, formated);
-
-        lcd_set_cursor(0, 0);
-        lcd_clear();
-        lcd_print("Temp: ");
-        lcd_set_cursor(6, 0);
-        lcd_print(formated);
-
-        _delay_ms(1000);
+        display_temp();
     }
 
     return 0;
