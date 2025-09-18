@@ -6,57 +6,32 @@
 #include "adc.h"
 #include <math.h>
 #include <avr/interrupt.h>
+#include "tmp36.h"
+#include <stdio.h>
 
-uint8_t adc_to_temp_celcius(uint16_t adc_val)
+void display_temp(uint16_t adc_val)
 {
-    float volt = (adc_val * 5);
-    volt = volt / 256;
-    float temp = ((volt - 0.5) * 100);
-    return ((uint8_t)round(temp));
-}
+    float temp = tmp36_convert(adc_val);
 
-float adc_to_temp_celcius_float(uint16_t adc_val)
-{
-    float volt = (adc_val * 5);
-    volt = volt / 1024;
-    float temp = ((volt - 0.5) * 100);
-    return temp;
-}
-
-void adc__interrupt_handler_8bit(uint16_t adc_val)
-{
-    uint8_t temp = adc_to_temp_celcius(adc_val);
-    char formated[4];
-
-    itoa(temp, formated, 10);
+    char buffer[10];
+    // Format with 2 decimal places (e.g., "26.17")
+    dtostrf(temp, 6, 2, buffer);
 
     lcd_clear();
     lcd_set_cursor(0, 0);
-    lcd_print("Temp_1:");
-    lcd_set_cursor(7, 0);
-    lcd_print(formated);
+    lcd_print("TemT:");
+    lcd_set_cursor(6, 0);
+    lcd_print(buffer);
 
     _delay_ms(1000);
 }
 
-void adc__interrupt_handler_10bit(uint16_t adc_val)
+void set_configs()
 {
-    float temp = adc_to_temp_celcius_float(adc_val);
-    char formated[10];
+    TMP36_CONFIG.vref_mv = 5000;
+    TMP36_CONFIG.precision = TMP36_PRECISION_10BIT;
+    TMP36_CONFIG.unit = TMP36_UNIT_FAHRENHEIT;
 
-    dtostrf(temp, 9, 3, formated);
-
-    lcd_clear();
-    lcd_set_cursor(0, 0);
-    lcd_print("Temp_1:");
-    lcd_set_cursor(7, 0);
-    lcd_print(formated);
-
-    _delay_ms(1000);
-}
-
-int main(void)
-{
     LCD_CONFIG.port = &PORTD;
     LCD_CONFIG.ddr = &DDRD;
     LCD_CONFIG.rs = PORTD0;
@@ -67,7 +42,6 @@ int main(void)
     LCD_CONFIG.d7 = PORTD7;
     LCD_CONFIG.cols = 16;
     LCD_CONFIG.rows = 2;
-    lcd_init();
 
     ADC_CONFIG.ref = ADC_REF_AVCC;
     ADC_CONFIG.prescaler = ADC_PRESCALER_8;
@@ -75,10 +49,17 @@ int main(void)
     ADC_CONFIG.channel = 5;
     ADC_CONFIG.intrruptable = true;
     ADC_CONFIG.ten_bit = true;
-    adc_init();
-    adc_set_callback(adc__interrupt_handler_10bit);
+}
 
-    // enable global interrupts
+int main(void)
+{
+    set_configs();
+
+    lcd_init();
+
+    adc_init();
+    adc_set_callback(display_temp);
+
     sei();
 
     adc_start();
