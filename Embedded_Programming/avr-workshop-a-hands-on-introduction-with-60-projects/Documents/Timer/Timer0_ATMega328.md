@@ -1,4 +1,14 @@
-# Registers
+# Timer0 PWM on ATmega328P
+
+- **Timer0** has **two PWM outputs**:
+  - **OC0A (PD6)** → controlled by `OCR0A`
+  - **OC0B (PD5)** → controlled by `OCR0B`
+- Both share the **same counter (TCNT0)** and **same TOP value** (which defines PWM frequency).
+- Each can have its **own duty cycle**, set by its compare register.
+
+
+
+### Registers
 
 ##### Timer/Counter Control Register 0 A
 
@@ -151,6 +161,45 @@ following table is for phase correct PWM mode:
 |           | 7 bit | 6 bit | 5 bit | 4 bit | 3 bit | 2 bit | 1 bit | 0 bit |
 | --------- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
 | **OCR0A** |       |       |       |       |       |       |       |       |
+
+
+
+
+
+---
+
+
+
+### When both PWM outputs work (OC0A + OC0B)
+
+- Works in **Fast PWM** or **Phase Correct PWM** modes where **TOP = 0xFF** (fixed).
+- Both outputs generate PWM at the **same frequency**.
+- Duty cycles are set independently (`OCR0A`, `OCR0B`).
+
+
+
+### When only OC0B works
+
+- In modes where **TOP = OCR0A** (Fast PWM or Phase Correct with variable TOP):
+  - `OCR0A` defines the frequency (TOP).
+  - The **OC0A pin is disabled** (can’t output PWM).
+  - The **OC0B pin still works normally**.
+
+
+
+### Practical meaning
+
+| Mode                               | TOP   | OC0A PWM | OC0B PWM |
+| ---------------------------------- | ----- | -------- | -------- |
+| Fast / Phase Correct (TOP = 0xFF)  | 0xFF  | ✅        | ✅        |
+| Fast / Phase Correct (TOP = OCR0A) | OCR0A | 🚫        | ✅        |
+
+
+
+### Bottom line
+
+You can have **two PWM outputs (OC0A + OC0B)** from **Timer0** only when **TOP = 0xFF** (the default 8-bit range).
+ If you use **OCR0A as TOP**, **OC0A stops outputting PWM**, and only **OC0B** remains active.
 
 
 

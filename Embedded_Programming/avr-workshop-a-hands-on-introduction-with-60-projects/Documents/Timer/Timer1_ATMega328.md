@@ -1,116 +1,68 @@
-# Normal Mode Example
+# Timer1
 
-following code will call interrupt function every time that the timer counter register (`TCNT`) reach to its maximum; this time will take 0.52428 second.
+Timer1 is the 16-bit timer/counter on the ATmega328P. It has:
 
-we use internal oscillator of `ATmega328p`, and set the timer1 pre-scalar to 8.
+- a 16-bit counter register `TCNT1`,
+- two compare registers for channel A and B (`OCR1A`, `OCR1B`),
+- an optional TOP register `ICR1` (used in some modes),
+- two physical output pins: **OC1A = PB1** and **OC1B = PB2**.
 
-```c
-#include <avr/io.h>
-#include <util/delay.h>
-#include <avr/interrupt.h>
+Timer1 supports multiple PWM modes (Fast PWM, Phase Correct, Phase/Freq Correct, CTC, etc.). Which register supplies the **TOP** value (the counter limit) depends on the selected waveform generation mode (WGM). TOP determines the PWM period (and together with OCR registers determines duty).
 
-void setup_timer1_interrupt()
-{
-    // set prescalar to 8
-    TCCR1B |= (1 << CS11);
 
-    // enable timer counter overflow 1 interrupt
-    TIMSK1 |= (1 << TOIE1);
 
-    sei();
-}
+------
 
-ISR(TIMER1_OVF_vect)
-{
-    PORTB |= (1 << PORTB1);
-    _delay_ms(100);
-    PORTB &= ~(1 << PORTB1);
-}
+## Important practical rules and pitfalls (from the Q&A)
 
-int main(void)
-{
-    setup_timer1_interrupt();
-    DDRB |= (1 << PORTB0);
-    DDRB |= (1 << PORTB1);
-    while (1)
-    {
-        PORTB |= (1 << PORTB0);
-        _delay_ms(100);
-        PORTB &= ~(1 << PORTB0);
-        _delay_ms(100);
-    };
-    return 0;
+1. **OCR1A vs ICR1 usage**
+   - `OCR1A` is a duty register *unless* the chosen mode uses `OCR1A` as TOP. In OCR1A-as-TOP modes, OCR1A becomes TOP and no longer controls OC1A duty.
+   - `ICR1` is a TOP register only in ICR1-as-TOP modes; writing to `ICR1` only affects period in those modes.
+2. **OC1A pin disconnected**
+   - In OCR1A-as-TOP modes, the OC1A pin (PB1) is disconnected — you cannot read the TOP value or use PB1 to set it. TOP must be set in software (write `OCR1A = …`).
+3. **Setting TOP only where it matters**
+   - Do **not** write `ICR1` in fixed-top 8/9/10-bit modes — it’s redundant and confusing. Set `ICR1` only when the mode uses ICR1 as TOP. Set `OCR1A` only when the mode uses OCR1A as TOP.
+4. **Setting duty**
+   - For modes where OC1A is active, use `OCR1A = duty`.
+   - For all modes where OC1B is active, use `OCR1B = duty`.
+   - If mode uses OCR1A as TOP, you cannot set OC1A duty (the OC1A pin is disabled); setting `OCR1A` then changes TOP (period) instead of duty.
+5. **Driver API implications**
+   - Your `avr8_timer_1_config_t` should not expose a `top` variable if you automatically initialize TOP — instead set TOP internally only for ICR1 or OCR1A modes.
+   - `avr8_timer_1_set_duty()` must detect OCR1A-as-TOP modes and disallow setting OC1A duty in those modes (or return an error). Example guard:
+
+```
+bool ocr1a_as_top = (cfg->mode == PWM1_FAST_OCR1A
+                  || cfg->mode == PWM1_PHASE_CORRECT_OCR1A
+                  || cfg->mode == PWM1_PHASE_FREQ_CORRECT_OCR1A);
+if (cfg->output == PWM1_OC1A && ocr1a_as_top) {
+    // OC1A unavailable — handle error or ignore
+} else if (cfg->output == PWM1_OC1A) {
+    OCR1A = duty;
+} else {
+    OCR1B = duty;
 }
 ```
 
+1. **WGM bit correctness**
+   - Modes with variable TOP require correct WGM bits — e.g. for **Fast PWM, TOP=ICR1 (mode 14)** you must set WGM13=1, WGM12=1, WGM11=1, WGM10=0 — in code that is `TCCR1A |= (1<<WGM11); TCCR1B |= (1<<WGM13)|(1<<WGM12);`.
+   - For **Fast PWM, TOP=OCR1A (mode 15)** you must set WGM13=1, WGM12=1, WGM11=1, WGM10=1 — in code `TCCR1A |= (1<<WGM11)|(1<<WGM10); TCCR1B |= (1<<WGM13)|(1<<WGM12);`.
+   - Missing WGM11 (or WGM10) is a common bug that makes the mode different from what you intended.
+2. **Programmatic control**
+   - TOP is always set in software for ICR1/OCR1A modes; you cannot get TOP via an input pin (PB1); set the register programmatically.
+   - Changing TOP at runtime changes frequency — do this carefully (disable interrupts or update safely) if you want glitch-free transitions.
 
+------
 
-# CTC Mode Example
+## Final compact cheat-sheet
 
-following code will call interrupt function every 5 seconds; the interrupt is raised based on the comparison of `TCNT` register period count with the value of `OCR1A`; when-ever it reaches the value of `OCR1A`, then the interrupt function will be called.
-
-we use internal oscillator of `ATmega328p`, and set the timer1 pre-scalar to 1024.
-
-```c
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <util/delay.h>
-
-ISR(TIMER1_COMPA_vect)
-{
-    TCNT1 = 0;
-    PORTB |= (1 << PORTB1);
-    _delay_ms(1000);
-    PORTB &= ~(1 << PORTB1);
-}
-
-void setup_timer1_ctc_interrupt()
-{
-    // number of periods to watch for.
-    // this is calculated as: OCR1A = round(Seconds / (1 / ( F/Prescalar ) ) ) + 1
-    // OCR1A = round( 5 / ( 1 / ( 1000000 / 1024 ) ) ) + 1 = round( 5 / ( 1 / ( 976.5625 ) ) ) + 1
-    // = round( 5 / ( 0.001024 ) ) + 1 = round( 4882.8125 ) + 1 = 4884
-    OCR1A = 4884;
-
-    // set prescalar to 1024
-    TCCR1B |= (1 << WGM12) | (1 << CS12) | (1 << CS10);
-    // TCCR1B |= (1 << CS12) | (1 << CS10);
-
-    // enable ctc 1 A interrupt
-    TIMSK1 |= (1 << OCIE1A);
-
-    sei();
-}
-
-int main(void)
-{
-    setup_timer1_ctc_interrupt();
-
-    DDRB |= (1 << PORTB0);
-    DDRB |= (1 << PORTB1);
-    while (1)
-    {
-        PORTB |= (1 << PORTB0);
-        _delay_ms(100);
-        PORTB &= ~(1 << PORTB0);
-        _delay_ms(100);
-    };
-
-    return 0;
-}
-```
+- If you want **both PB1 and PB2 PWM at same arbitrary frequency** → use **ICR1-as-TOP modes** and set `ICR1`.
+- If you want **both pins PWM and fixed/resolution presets** → use **fixed 8/9/10-bit modes**.
+- If you want **one PWM output only (PB2) and set TOP via OCR1A** → use **OCR1A-as-TOP modes** (but OC1A disabled).
+- Always set `OCR1x` for duty, except when that register is used as TOP (then it sets period instead).
 
 
 
-
-
-# Timers
-
-in `ATmega328p` there are two 8 bit timers name d`TIMER0` and `TIMER2` that their counter register have maximum value of 255, and one 16 bit timer named `TIMER1` that its counter register has maximum value of 65535.
-
-
-
-# TIMER1
+# Registers
 
 this timer has following registers:
 
@@ -355,7 +307,9 @@ Timer/Counter Control Register 1 C
 
 ## TCNT1
 
-Timer/Counter Register (stores the counter value, 16 bit)
+Timer/Counter Register (stores the counter value, 16 bit). 
+
+this register compares its value with the value of specified as Top, when it reaches to the top value, it resets or starts to count down.
 
 |        | 7 bit | 6 bit | 5 bit | 4 bit | 3 bit | 2 bit | 1 bit | 0 bit |
 | ------ | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
@@ -364,9 +318,17 @@ Timer/Counter Register (stores the counter value, 16 bit)
 
 
 
-## OCR1A
+## OCR1A, OCR1B
 
-Output Compare Register A (stores the compare value, 16 bit)
+Output Compare Register A (stores the compare value, 16 bit).
+
+- `OCR1A` and `OCR1B` are 16-bit Output Compare Registers.
+
+- **When they are used as compare registers**:
+  - `OCR1A` controls the duty cycle for the OC1A output (PB1).
+  - `OCR1B` controls the duty cycle for the OC1B output (PB2).
+- **When a mode uses OCR1A as TOP**, `OCR1A` is repurposed and becomes the TOP (period) register — in that case it no longer controls OC1A duty and the OC1A pin is disconnected (cannot output PWM).
+- `OCR1B` remains the compare/duty register for OC1B in all modes where OC1B is active.
 
 |        | 7 bit | 6 bit | 5 bit | 4 bit | 3 bit | 2 bit | 1 bit | 0 bit |
 | ------ | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
@@ -379,10 +341,118 @@ Output Compare Register A (stores the compare value, 16 bit)
 
 Input Capture Register (can be used to stores the compare value, 16 bit)
 
+- `ICR1` is a 16-bit register.
+- In modes that use **ICR1 as TOP**, the hardware uses `ICR1` as the maximum counter value (TOP). That means the counter counts 0 → ICR1 (or up/down to ICR1 for phase-correct), so `ICR1` directly sets **PWM period/frequency** and resolution (TOP+1 steps).
+- `ICR1` is **not** a duty register. It determines the *period*, not the *duty*. Duty remains controlled by `OCR1A`/`OCR1B` in ICR1-as-TOP modes.
+
 |      | 7 bit | 6 bit | 5 bit | 4 bit | 3 bit | 2 bit | 1 bit | 0 bit |
 | ---- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
 | ICR1 |       |       |       |       |       |       |       |       |
 | ICR1 |       |       |       |       |       |       |       |       |
+
+
+
+# Example: Normal Mode
+
+following code will call interrupt function every time that the timer counter register (`TCNT`) reach to its maximum; this time will take 0.52428 second.
+
+we use internal oscillator of `ATmega328p`, and set the timer1 pre-scalar to 8.
+
+```c
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+
+void setup_timer1_interrupt()
+{
+    // set prescalar to 8
+    TCCR1B |= (1 << CS11);
+
+    // enable timer counter overflow 1 interrupt
+    TIMSK1 |= (1 << TOIE1);
+
+    sei();
+}
+
+ISR(TIMER1_OVF_vect)
+{
+    PORTB |= (1 << PORTB1);
+    _delay_ms(100);
+    PORTB &= ~(1 << PORTB1);
+}
+
+int main(void)
+{
+    setup_timer1_interrupt();
+    DDRB |= (1 << PORTB0);
+    DDRB |= (1 << PORTB1);
+    while (1)
+    {
+        PORTB |= (1 << PORTB0);
+        _delay_ms(100);
+        PORTB &= ~(1 << PORTB0);
+        _delay_ms(100);
+    };
+    return 0;
+}
+```
+
+
+
+# Example: CTC Mode
+
+following code will call interrupt function every 5 seconds; the interrupt is raised based on the comparison of `TCNT` register period count with the value of `OCR1A`; when-ever it reaches the value of `OCR1A`, then the interrupt function will be called.
+
+we use internal oscillator of `ATmega328p`, and set the timer1 pre-scalar to 1024.
+
+```c
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+
+ISR(TIMER1_COMPA_vect)
+{
+    TCNT1 = 0;
+    PORTB |= (1 << PORTB1);
+    _delay_ms(1000);
+    PORTB &= ~(1 << PORTB1);
+}
+
+void setup_timer1_ctc_interrupt()
+{
+    // number of periods to watch for.
+    // this is calculated as: OCR1A = round(Seconds / (1 / ( F/Prescalar ) ) ) + 1
+    // OCR1A = round( 5 / ( 1 / ( 1000000 / 1024 ) ) ) + 1 = round( 5 / ( 1 / ( 976.5625 ) ) ) + 1
+    // = round( 5 / ( 0.001024 ) ) + 1 = round( 4882.8125 ) + 1 = 4884
+    OCR1A = 4884;
+
+    // set prescalar to 1024
+    TCCR1B |= (1 << WGM12) | (1 << CS12) | (1 << CS10);
+    // TCCR1B |= (1 << CS12) | (1 << CS10);
+
+    // enable ctc 1 A interrupt
+    TIMSK1 |= (1 << OCIE1A);
+
+    sei();
+}
+
+int main(void)
+{
+    setup_timer1_ctc_interrupt();
+
+    DDRB |= (1 << PORTB0);
+    DDRB |= (1 << PORTB1);
+    while (1)
+    {
+        PORTB |= (1 << PORTB0);
+        _delay_ms(100);
+        PORTB &= ~(1 << PORTB0);
+        _delay_ms(100);
+    };
+
+    return 0;
+}
+```
 
 
 

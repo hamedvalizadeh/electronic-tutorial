@@ -60,16 +60,26 @@ typedef enum
     PWM1_OC1B
 } avr8_timer_1_output_t;
 
+// typedef struct
+// {
+//     avr8_timer_1_mode_t mode;
+//     uint16_t prescaler;
+//     avr8_timer_1_output_t output;
+//     uint16_t duty; // duty value
+//     uint16_t top;  // only used if mode supports variable TOP
+//     bool inverting;
+//     uint8_t use_ICR_as_TOP; // 1 if mode uses ICR1 as TOP
+// } avr8_timer_1_config_t;
+
 typedef struct
 {
     avr8_timer_1_mode_t mode;
     uint16_t prescaler;
     avr8_timer_1_output_t output;
-    uint16_t duty; // duty value
-    uint16_t top;  // only used if mode supports variable TOP
+    uint16_t duty;
     bool inverting;
-    uint8_t use_ICR_as_TOP; // 1 if mode uses ICR1 as TOP
 } avr8_timer_1_config_t;
+
 
 void avr8_timer_1_init(const avr8_timer_1_config_t *cfg);
 void avr8_timer_1_set_duty(const avr8_timer_1_config_t *cfg, uint16_t duty);

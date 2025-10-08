@@ -157,11 +157,48 @@ void avr8_timer_1_init(const avr8_timer_1_config_t *cfg)
         TCCR1B |= (1 << WGM12) | (1 << WGM13);
         break;
     case PWM1_FAST_ICR1:
+        TCCR1A |= (1 << WGM11);
         TCCR1B |= (1 << WGM13) | (1 << WGM12);
         break;
     case PWM1_FAST_OCR1A:
-        TCCR1A |= (1 << WGM10);
+        TCCR1A |= (1 << WGM10) | (1 << WGM11);
         TCCR1B |= (1 << WGM12) | (1 << WGM13);
+        break;
+    }
+
+    // Set TOP automatically based on mode
+    switch (cfg->mode)
+    {
+    case PWM1_PHASE_CORRECT_8BIT:
+    case PWM1_FAST_8BIT:
+        ICR1 = 0x00FF;
+        break;
+
+    case PWM1_PHASE_CORRECT_9BIT:
+    case PWM1_FAST_9BIT:
+        ICR1 = 0x01FF;
+        break;
+
+    case PWM1_PHASE_CORRECT_10BIT:
+    case PWM1_FAST_10BIT:
+        ICR1 = 0x03FF;
+        break;
+
+    case PWM1_PHASE_FREQ_CORRECT_ICR1:
+    case PWM1_PHASE_CORRECT_ICR1:
+    case PWM1_FAST_ICR1:
+        // Use ICR1 as TOP → leave it as-is or initialize to max
+        ICR1 = 0xFFFF;
+        break;
+
+    case PWM1_PHASE_FREQ_CORRECT_OCR1A:
+    case PWM1_PHASE_CORRECT_OCR1A:
+    case PWM1_FAST_OCR1A:
+        // Use OCR1A as TOP → initialize OCR1A if needed
+        OCR1A = 0xFFFF;
+        break;
+
+    default:
         break;
     }
 
@@ -206,10 +243,27 @@ void avr8_timer_1_init(const avr8_timer_1_config_t *cfg)
 
 void avr8_timer_1_set_duty(const avr8_timer_1_config_t *cfg, uint16_t duty)
 {
+    // OCR1A-as-TOP modes: OC1A output not available
+    bool ocr1a_as_top = (cfg->mode == PWM1_FAST_OCR1A ||
+                         cfg->mode == PWM1_PHASE_CORRECT_OCR1A ||
+                         cfg->mode == PWM1_PHASE_FREQ_CORRECT_OCR1A);
+
     if (cfg->output == PWM1_OC1A)
-        OCR1A = duty;
+    {
+        if (ocr1a_as_top)
+        {
+            // OC1A pin is disconnected → cannot set duty
+            return; // or optionally assert/error
+        }
+        else
+        {
+            OCR1A = duty; // normal duty cycle
+        }
+    }
     else
-        OCR1B = duty;
+    {
+        OCR1B = duty; // duty for OC1B works in all modes
+    }
 }
 
 /*===================== TIMER2 =====================*/
