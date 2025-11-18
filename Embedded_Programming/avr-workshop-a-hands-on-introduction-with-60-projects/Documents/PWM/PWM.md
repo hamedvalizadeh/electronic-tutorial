@@ -36,6 +36,16 @@ duty cycle is measured by percentage. in the following image we can see that bas
 
 
 
+Duty cycle value is calculated as follow:
+
+```
+Duty = (Compare Value) / (TOP Value)
+
+Compare and TOP values depond on the chosen timer mode.
+```
+
+
+
 #### Frequency
 
 this parameter determines how fast PWM completes a period.
@@ -113,5 +123,4 @@ the setup steps would be as follow:
 - set the timer pre-scaler
 - config comparer
 - set compare amount
-
 

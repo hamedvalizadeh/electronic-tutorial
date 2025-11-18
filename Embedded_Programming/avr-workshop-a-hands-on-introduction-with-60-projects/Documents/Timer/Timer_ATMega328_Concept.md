@@ -1,23 +1,23 @@
 # Timers
 
-in `ATmega328p` there are two 8 bit timers name d`TIMER0` and `TIMER2` that their counter register have maximum value of 255, and one 16 bit timer named `TIMER1` that its counter register has maximum value of 65535.
+in `ATmega328p` there are two 8 bit timers name d`TIMER0` and `TIMER2` that their counter register have maximum value of 255, and one 16 bits timer named `TIMER1` that its counter register has maximum value of 65535.
 
 
 
 # Important Concepts
 
-to better understand timer in ATMega328, there is some key concepts to be aware of. they are as follow:
+to better understand timer in ATMega328, there are some key concepts to be aware of. they are as follow:
 
 - Top
 - Period
 - Duty Cycle
 - Mode
-- Frequency
 - Output Voltage
+- Frequency
 
 
 
-**HINT:** in contents related to timer concept, where-ever you see `nx` it refers to the timer index and register letter. we have three timers in ATMega328, so `n` could be 0, 1, or 2; and some registers have more that one byte that each one is distinguished with a letter that can be any thing from `A` to `Z`. 
+**HINT:** in contents related to timer concept, where-ever you see `nx` it refers to the timer index and register letter. we have three timers in ATMega328, so `n` could be 0, 1, or 2; and some registers have more than one byte that each one is distinguished with a letter that can be any thing from `A` to `Z`. 
 
 
 
@@ -25,7 +25,7 @@ to better understand timer in ATMega328, there is some key concepts to be aware 
 
 ## TOP
 
-**TOP** is the **maximum value the timer counter ** counts to before it resets or changes counting direction.
+**TOP** is the **maximum value the timer counter ** register counts to before it resets or changes counting direction.
 
 In other words, it defines the **period** (or length) of one complete PWM cycle.
 
@@ -52,28 +52,26 @@ If `TOP = 1999`:
 
 Depending on the **mode**, TOP can come from:
 
-1. **Fixed TOP (8/9/10-bit modes):**  8 bit for timers 0 and 2, but for timer 1 it could be 9 bit and 10 bit
-
-   - TOP is hardware fixed (0x00FF, 0x01FF or 0x03FF).
-
-   - Example modes: Fast PWM / Phase Correct with 8/9/10-bit resolution.
-
-   - **Both `OCnA` and `OCnB` are available** as PWM outputs.
-
-   - Frequency is fixed by `F_CPU`, pre-scaler and the fixed TOP.
-
-   - Use these modes when you accept the discrete set of available frequencies and want both outputs.
+1. **Fixed TOP (8/9/10-bit modes):**  8 bits for timers 0 and 2, but for timer 1 it could be 9 bits and 10 bits
+- TOP is hardware fixed (0x00FF, 0x01FF or 0x03FF).
+   
+- Example modes: Fast PWM / Phase Correct with 8/9/10-bit resolution.
+   
+- **Both `OCnA` and `OCnB` are available** as PWM outputs.
+   
+- Frequency is fixed by `F_CPU`, pre-scaler and the fixed TOP.
+   
+- Use these modes when you accept the discrete set of available frequencies and want both outputs.
 
 
 2. **ICR1 as TOP modes (variable TOP, both pins active):** it is available just in timer 1
-
-   - `TOP = ICR1`. Examples: `FAST` or `PHASE_CORRECT` using ICR1.
-
-   - **Both OC1A and OC1B remain active** and their duty cycles are `OCRnA/ICR1` and `OCRnB/ICR1`.
-
-   - You programmatically set `ICR1` to choose PWM frequency and resolution.
-
-   - Use this when you need an arbitrary frequency/resolution and want both PWM outputs synchronized at the same frequency.
+- `TOP = ICR1`. Examples: `FAST` or `PHASE_CORRECT` using ICR1.
+   
+- **Both OC1A and OC1B remain active** and their duty cycles are `OCRnA/ICR1` and `OCRnB/ICR1`.
+   
+- You programmatically set `ICR1` to choose PWM frequency and resolution.
+   
+- Use this when you need an arbitrary frequency/resolution and want both PWM outputs synchronized at the same frequency.
 
 
 3. **`OCRnA` as TOP modes (variable TOP, `OCnA` disabled)**
@@ -119,15 +117,42 @@ The ON/OFF timing is controlled by comparing the timer value (`TCNT`) with the *
 
 
 
-duty cycle is measured by percentage. in the following image we can see that based on on and off time we could have different percentages of duty cycle:
+duty cycle is measured by percentage. in the following image we can see that based on ON and OFF time we could have different percentages of duty cycle:
 
 ![](duty-cycle.png)
+
+
+
+Duty cycle value is calculated as follow:
+
+```
+Duty = (Compare Value) / (TOP Value)
+
+Compare and TOP values depond on the chosen timer mode.
+```
 
 
 
 ---
 
 ## Mode
+
+Timers in the ATmega328 provide a range of modes allowing you to choose between:
+
+- **pure timing** (Normal, CTC)
+- **high-speed PWM** (Fast PWM)
+- **low-distortion PWM** (Phase Correct)
+- **high-precision variable-frequency PWM** (PWM with ICR1 or OCR1A as TOP)
+
+Each mode modifies:
+
+- how `TCNTn` counts
+- how TOP is chosen
+- how the waveform looks
+- how `OCnx` behaves
+- and how frequency/duty can be controlled
+
+
 
 A **mode** defines **how the timer operates** — specifically:
 
@@ -139,11 +164,84 @@ A **mode** defines **how the timer operates** — specifically:
 
 ### Why modes exist?
 
-Modes give flexibility — you can use the same timer for many tasks:
+Modes give flexibility — you can use the same timer for many tasks. 
 
-- **Fast PWM** for high-frequency signals.
-- **Phase Correct PWM** for symmetric waveforms (important in motor control).
-- **CTC (Clear Timer on Compare)** for precise timing without PWM.
+modes are as follow:
+
+- **Normal**
+
+  - `TCNTnx` counts up from 0. when it reaches max, it overflow to 0 and triggers overflow interrupt (`TOVn`).
+  - `OCnx` pins do not generate PWM. They can only toggle on compare-match if configured, but frequency/duty is not usable for analog output
+  - Use Cases:
+    - Timing (delays)
+    - Overflow Interrupts
+    - Free running time
+    - Simple time base
+
+- **CTC (Clear Timer on Compare)** 
+
+  - `TCNTnx` counts from 0 to `OCRnx` (TOP)
+  - when `TCNTnx` = `OCRnx`, timer resets to 0 and generates compare match interrupt.
+  - `OCnx` pins toggle on each compare match.
+  - Use Cases:
+    - for precise timing without PWM.
+    - Generating accurate square waves (tone generation, clock signals)
+
+- **Fast PWM** 
+
+  - `TCNTnx` counts from 0 to TOP. TOP options in this mode are as follow:
+    - Fixed
+    - `OCRnA`
+    - `ICR1` in timer1 only
+
+
+  - for high-frequency signals
+  - This is the most common PWM mode.
+  - `OCnx` pins create clear PWM.
+  - Use Cases:
+    - LED dimming
+    - motor speed control
+    - PWM control
+    - buck/boost convertors
+
+- **Phase Correct PWM** 
+
+  - `TCNTnx` counts from 0 to TOP and from TOP to 0. TOP options in this mode are as follow:
+    - Fixed
+    - `OCRnA`
+    - `ICR1` in timer1 only
+  - frequency is lower than Fast PWM (because it counts up AND down)
+  - Use Cases
+    - for symmetric waveforms (important in motor control).
+
+
+
+
+### Why So Many Modes?
+
+#### CTC
+
+- Best for accurate time intervals
+- Best for generating square waves
+
+#### Fast PWM
+
+- Best for LED dimming
+- Best for high-speed PWM
+- Simple and efficient
+
+#### Phase Correct PWM
+
+- Best for audio or servo
+- Symmetric waveform (less jitter)
+
+#### ICR1 as TOP
+
+- Needed when you want variable frequency **AND** want to keep both PWM outputs
+
+#### OCR1A as TOP
+
+- Needed when you want variable frequency **but don't care about using OC1A as PWM**
 
 
 
@@ -222,7 +320,7 @@ denominator = (timer clock prescaler) × (number of timer ticks per full PWM per
 
 
 
-denominator for time 1:
+denominator for timer 1:
 
 | Mode (AVR name / typical)                       | ticks per full period          | When to use / notes                                          |
 | ----------------------------------------------- | ------------------------------ | ------------------------------------------------------------ |
@@ -251,6 +349,6 @@ f_timer = f_clk / (prescaler * denominator) => 1,000 = 16,000,000 / (8 * (1 + IC
 => 1,000 * 8 * (1 + ICR1) = 16,000,000 => 1 + ICR1 = 16,000,000 / (8 * 1,000) => ICR1 = (16,000,000 / (8 * 1,000)) - 1
 => ICR1 = 1,999
 
-now that we now the value of ICR1 which is our top, we should set titme1 registers to config it to have prescalar as 8, mode to Fast PWM with ICR1 as Top.
+now that we now the value of ICR1 which is our top, we should set timer1 registers to config it to have prescalar as 8, mode to Fast PWM with ICR1 as Top.
 ```
 

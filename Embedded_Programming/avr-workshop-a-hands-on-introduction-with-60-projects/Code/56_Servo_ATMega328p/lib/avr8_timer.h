@@ -10,8 +10,8 @@ typedef enum
 {
     PWM0_NORMAL,
     PWM0_PHASE_CORRECT,
-    PWM0_CTC,
     PWM0_FAST,
+    PWM0_CTC,               // TOP = OCR0A
     PWM0_PHASE_CORRECT_OCR, // TOP = OCR0A
     PWM0_FAST_OCR           // TOP = OCR0A
 } avr8_timer_0_mode_t;
@@ -27,12 +27,15 @@ typedef struct
     avr8_timer_0_mode_t mode;
     uint16_t prescaler;
     avr8_timer_0_output_t output;
-    uint8_t duty; // duty value (0 → TOP)
+    uint8_t duty_percent;
+    uint8_t top_variable;
     bool inverting;
 } avr8_timer_0_config_t;
 
 void avr8_timer_0_init(const avr8_timer_0_config_t *cfg);
 void avr8_timer_0_set_duty(const avr8_timer_0_config_t *cfg, uint8_t duty);
+void avr8_timer_0_set_duty_percent(const avr8_timer_0_config_t *cfg, uint8_t percent);
+uint8_t avr8_timer_0_get_top();
 
 /*===================== TIMER1 (16-bit) =====================*/
 typedef enum
@@ -65,7 +68,7 @@ typedef struct
     avr8_timer_1_mode_t mode;
     uint16_t prescaler;
     avr8_timer_1_output_t output;
-    uint16_t duty;
+    uint8_t duty_percent;
     uint16_t top_variable;
     bool inverting;
 } avr8_timer_1_config_t;
