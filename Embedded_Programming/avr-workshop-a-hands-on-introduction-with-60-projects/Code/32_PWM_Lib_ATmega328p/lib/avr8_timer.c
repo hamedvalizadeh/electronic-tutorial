@@ -2,23 +2,11 @@
 #include <util/atomic.h>
 
 /*===================== TIMER0 =====================*/
-void avr8_timer_0_init(const avr8_timer_0_config_t *cfg)
+
+uint8_t avr8_timer_0_top = 0;
+
+void avr8_timer_0_set_compare_mode(const avr8_timer_0_config_t *cfg)
 {
-    // Set output pin
-    switch (cfg->output)
-    {
-    case PWM0_OC0A:
-        DDRD |= (1 << PD6);
-        break;
-    case PWM0_OC0B:
-        DDRD |= (1 << PD5);
-        break;
-    }
-
-    TCCR0A = 0;
-    TCCR0B = 0;
-
-    // Waveform generation
     switch (cfg->mode)
     {
     case PWM0_NORMAL:
@@ -41,7 +29,33 @@ void avr8_timer_0_init(const avr8_timer_0_config_t *cfg)
         TCCR0B |= (1 << WGM02);
         break;
     }
+}
 
+void avr8_timer_0_set_top(const avr8_timer_0_config_t *cfg)
+{
+    avr8_timer_0_top = cfg->top_variable;
+
+    switch (cfg->mode)
+    {
+    case PWM0_NORMAL:
+    case PWM0_PHASE_CORRECT:
+    case PWM0_FAST:
+        avr8_timer_0_top = 0xFF;
+        break;
+
+    case PWM0_CTC:
+    case PWM0_PHASE_CORRECT_OCR:
+    case PWM0_FAST_OCR:
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { OCR0A = avr8_timer_0_top; }
+        break;
+
+    default:
+        break;
+    }
+}
+
+void avr8_timer_0_set_compare_inverting(const avr8_timer_0_config_t *cfg)
+{
     if (cfg->inverting)
     {
         if (cfg->output == PWM0_OC0A)
@@ -56,10 +70,10 @@ void avr8_timer_0_init(const avr8_timer_0_config_t *cfg)
         else
             TCCR0A |= (1 << COM0B1);
     }
+}
 
-    avr8_timer_0_set_duty(cfg, cfg->duty);
-
-    // Prescaler
+void avr8_timer_0_set_prescaler(const avr8_timer_0_config_t *cfg)
+{
     switch (cfg->prescaler)
     {
     case 1:
@@ -80,12 +94,51 @@ void avr8_timer_0_init(const avr8_timer_0_config_t *cfg)
     }
 }
 
+void avr8_timer_0_init(const avr8_timer_0_config_t *cfg)
+{
+    switch (cfg->output)
+    {
+    case PWM0_OC0A:
+        DDRD |= (1 << PD6);
+        break;
+    case PWM0_OC0B:
+        DDRD |= (1 << PD5);
+        break;
+    }
+
+    TCCR0A = 0;
+    TCCR0B = 0;
+
+    avr8_timer_0_set_compare_mode(cfg);
+    avr8_timer_0_set_top(cfg);
+    avr8_timer_0_set_compare_inverting(cfg);
+    avr8_timer_0_set_duty_percent(cfg, cfg->duty_percent);
+    avr8_timer_0_set_prescaler(cfg);
+}
+
 void avr8_timer_0_set_duty(const avr8_timer_0_config_t *cfg, uint8_t duty)
 {
     if (cfg->output == PWM0_OC0A)
         OCR0A = duty;
     else
         OCR0B = duty;
+}
+
+void avr8_timer_0_set_duty_percent(const avr8_timer_0_config_t *cfg, uint8_t percent)
+{
+    if (percent > 100)
+    {
+        percent = 100;
+    }
+
+    uint8_t duty_value = avr8_timer_0_top * percent / 100;
+
+    avr8_timer_0_set_duty(cfg, duty_value);
+}
+
+uint8_t avr8_timer_0_get_top()
+{
+    return avr8_timer_0_top;
 }
 
 /*===================== TIMER1 =====================*/
@@ -238,8 +291,8 @@ bool avr8_timer_1_is_ocr1a_top(const avr8_timer_1_config_t *cfg)
 {
     // OCR1A-as-TOP modes: OC1A output not available
     return (cfg->mode == PWM1_FAST_OCR1A ||
-                         cfg->mode == PWM1_PHASE_CORRECT_OCR1A ||
-                         cfg->mode == PWM1_PHASE_FREQ_CORRECT_OCR1A);
+            cfg->mode == PWM1_PHASE_CORRECT_OCR1A ||
+            cfg->mode == PWM1_PHASE_FREQ_CORRECT_OCR1A);
 }
 
 void avr8_timer_1_set_duty(const avr8_timer_1_config_t *cfg, uint16_t duty_value)
@@ -299,7 +352,7 @@ void avr8_timer_1_init(const avr8_timer_1_config_t *cfg)
     avr8_timer_1_set_compare_mode(cfg);
     avr8_timer_1_set_top(cfg);
     avr8_timer_1_set_compare_inverting(cfg);
-    avr8_timer_1_set_duty(cfg, cfg->duty);
+    avr8_timer_1_set_duty_percent(cfg, cfg->duty_percent);
     avr8_timer_1_set_prescaler(cfg);
 }
 
@@ -309,22 +362,11 @@ uint16_t avr8_timer_1_get_top()
 }
 
 /*===================== TIMER2 =====================*/
-void avr8_timer_2_init(const avr8_timer_2_config_t *cfg)
+
+uint8_t avr8_timer_2_top = 0;
+
+void avr8_timer_2_set_compare_mode(const avr8_timer_2_config_t *cfg)
 {
-    switch (cfg->output)
-    {
-    case PWM2_OC2A:
-        DDRB |= (1 << PB3);
-        break;
-    case PWM2_OC2B:
-        DDRD |= (1 << PD3);
-        break;
-    }
-
-    TCCR2A = 0;
-    TCCR2B = 0;
-
-    // Waveform generation
     switch (cfg->mode)
     {
     case PWM2_NORMAL:
@@ -347,7 +389,33 @@ void avr8_timer_2_init(const avr8_timer_2_config_t *cfg)
         TCCR2B |= (1 << WGM22);
         break;
     }
+}
 
+void avr8_timer_2_set_top(const avr8_timer_2_config_t *cfg)
+{
+    avr8_timer_2_top = cfg->top_variable;
+
+    switch (cfg->mode)
+    {
+    case PWM2_NORMAL:
+    case PWM2_PHASE_CORRECT:
+    case PWM2_FAST:
+        avr8_timer_2_top = 0xFF;
+        break;
+
+    case PWM2_CTC:
+    case PWM2_PHASE_CORRECT_OCR:
+    case PWM2_FAST_OCR:
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { OCR2A = avr8_timer_2_top; }
+        break;
+
+    default:
+        break;
+    }
+}
+
+void avr8_timer_2_set_compare_inverting(const avr8_timer_2_config_t *cfg)
+{
     if (cfg->inverting)
     {
         if (cfg->output == PWM2_OC2A)
@@ -362,10 +430,10 @@ void avr8_timer_2_init(const avr8_timer_2_config_t *cfg)
         else
             TCCR2A |= (1 << COM2B1);
     }
+}
 
-    avr8_timer_2_set_duty(cfg, cfg->duty);
-
-    // Prescaler
+void avr8_timer_2_set_prescaler(const avr8_timer_2_config_t *cfg)
+{
     switch (cfg->prescaler)
     {
     case 1:
@@ -398,4 +466,43 @@ void avr8_timer_2_set_duty(const avr8_timer_2_config_t *cfg, uint8_t duty)
         OCR2A = duty;
     else
         OCR2B = duty;
+}
+
+void avr8_timer_2_set_duty_percent(const avr8_timer_2_config_t *cfg, uint8_t percent)
+{
+    if (percent > 100)
+    {
+        percent = 100;
+    }
+
+    uint8_t duty_value = avr8_timer_2_top * percent / 100;
+
+    avr8_timer_2_set_duty(cfg, duty_value);
+}
+
+void avr8_timer_2_init(const avr8_timer_2_config_t *cfg)
+{
+    switch (cfg->output)
+    {
+    case PWM2_OC2A:
+        DDRB |= (1 << PB3);
+        break;
+    case PWM2_OC2B:
+        DDRD |= (1 << PD3);
+        break;
+    }
+
+    TCCR2A = 0;
+    TCCR2B = 0;
+
+    avr8_timer_2_set_compare_mode(cfg);
+    avr8_timer_2_set_top(cfg);
+    avr8_timer_2_set_compare_inverting(cfg);
+    avr8_timer_2_set_duty_percent(cfg, cfg->duty_percent);
+    avr8_timer_2_set_prescaler(cfg);
+}
+
+uint8_t avr8_timer_2_get_top()
+{
+    return avr8_timer_2_top;
 }
