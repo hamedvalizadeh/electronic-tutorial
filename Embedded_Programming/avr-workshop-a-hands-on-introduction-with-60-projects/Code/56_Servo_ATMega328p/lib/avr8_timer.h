@@ -32,9 +32,9 @@ typedef struct
     bool inverting;
 } avr8_timer_0_config_t;
 
-void avr8_timer_0_init(const avr8_timer_0_config_t *cfg);
 void avr8_timer_0_set_duty(const avr8_timer_0_config_t *cfg, uint8_t duty);
 void avr8_timer_0_set_duty_percent(const avr8_timer_0_config_t *cfg, uint8_t percent);
+void avr8_timer_0_init(const avr8_timer_0_config_t *cfg);
 uint8_t avr8_timer_0_get_top();
 
 /*===================== TIMER1 (16-bit) =====================*/
@@ -73,9 +73,9 @@ typedef struct
     bool inverting;
 } avr8_timer_1_config_t;
 
-void avr8_timer_1_init(const avr8_timer_1_config_t *cfg);
 void avr8_timer_1_set_duty(const avr8_timer_1_config_t *cfg, uint16_t duty);
 void avr8_timer_1_set_duty_percent(const avr8_timer_1_config_t *cfg, uint8_t percent);
+void avr8_timer_1_init(const avr8_timer_1_config_t *cfg);
 uint16_t avr8_timer_1_get_top();
 
 /*===================== TIMER2 (8-bit) =====================*/
@@ -100,11 +100,14 @@ typedef struct
     avr8_timer_2_mode_t mode;
     uint16_t prescaler;
     avr8_timer_2_output_t output;
-    uint8_t duty;
+    uint8_t duty_percent;
+    uint8_t top_variable;
     bool inverting;
 } avr8_timer_2_config_t;
 
-void avr8_timer_2_init(const avr8_timer_2_config_t *cfg);
 void avr8_timer_2_set_duty(const avr8_timer_2_config_t *cfg, uint8_t duty);
+void avr8_timer_2_set_duty_percent(const avr8_timer_2_config_t *cfg, uint8_t percent);
+void avr8_timer_2_init(const avr8_timer_2_config_t *cfg);
+uint8_t avr8_timer_2_get_top();
 
 #endif // AVR8_TIMER_PWM

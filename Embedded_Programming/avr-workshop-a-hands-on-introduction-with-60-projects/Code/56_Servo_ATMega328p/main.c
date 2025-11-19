@@ -4,6 +4,13 @@
 
 int main(void)
 {
+    avr8_timer_0_config_t timer0_cfg = {
+        .output = PWM0_OC0A,
+        .mode = PWM0_FAST,
+        .prescaler = 8,
+        .duty_percent = 0,
+        .inverting = true};
+
     avr8_timer_1_config_t timer1_cfg = {
         .output = PWM1_OC1A,
         .mode = PWM1_FAST_8BIT,
@@ -11,21 +18,34 @@ int main(void)
         .duty_percent = 0,
         .inverting = false};
 
+    avr8_timer_2_config_t timer2_cfg = {
+        .output = PWM2_OC2A,
+        .mode = PWM2_FAST,
+        .prescaler = 8,
+        .duty_percent = 0,
+        .inverting = false};
+
+    avr8_timer_0_init(&timer0_cfg);
     avr8_timer_1_init(&timer1_cfg);
-    
+    avr8_timer_2_init(&timer2_cfg);
+
     uint8_t duty;
 
     while (1)
     {
         for (duty = 0; duty <= 100; duty++)
         {
+            avr8_timer_0_set_duty_percent(&timer0_cfg, duty);
             avr8_timer_1_set_duty_percent(&timer1_cfg, duty);
+            avr8_timer_2_set_duty_percent(&timer2_cfg, duty);
             _delay_ms(8);
         }
 
         for (duty = 100; duty > 0; duty--)
         {
+            avr8_timer_0_set_duty_percent(&timer0_cfg, duty);
             avr8_timer_1_set_duty_percent(&timer1_cfg, duty);
+            avr8_timer_2_set_duty_percent(&timer2_cfg, duty);
             _delay_ms(8);
         }
     }
