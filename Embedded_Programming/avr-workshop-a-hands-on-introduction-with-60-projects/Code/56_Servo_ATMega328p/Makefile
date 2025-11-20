@@ -14,7 +14,7 @@
 # FUSES ........ Parameters for avrdude to flash the fuses appropriately.
  
 DEVICE     = atmega328p
-CLOCK      = 1000000
+CLOCK      = 16000000
 CFLAGS = -Wall -Os -Wextra -Werror -std=c99 -pedantic -Iusbdrv -Ilib -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
 PORT_LX    = /dev/ttyACM0
 PORT_MAC   = /dev/tty.usbmodemfa131
