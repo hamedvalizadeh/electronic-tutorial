@@ -116,12 +116,24 @@ void avr8_timer_0_init(const avr8_timer_0_config_t *cfg)
     avr8_timer_0_set_prescaler(cfg);
 }
 
-void avr8_timer_0_set_pulse_ticks(const avr8_timer_0_config_t *cfg, uint8_t pulse_ticks)
+// void avr8_timer_0_set_pulse_ticks(const avr8_timer_0_config_t *cfg, uint8_t pulse_ticks)
+// {
+//     if (cfg->output == PWM0_OC0A)
+//         OCR0A = pulse_ticks;
+//     else
+//         OCR0B = pulse_ticks;
+// }
+
+void avr8_timer_0_set_pulse_ticks(const avr8_timer_0_config_t *cfg, uint16_t pulse_ticks)
 {
+    // clamp to hardware limit (8-bit)
+    if (pulse_ticks > 255)
+        pulse_ticks = 255;
+
     if (cfg->output == PWM0_OC0A)
-        OCR0A = pulse_ticks;
+        OCR0A = (uint8_t)pulse_ticks;
     else
-        OCR0B = pulse_ticks;
+        OCR0B = (uint8_t)pulse_ticks;
 }
 
 void avr8_timer_0_set_duty(const avr8_timer_0_config_t *cfg, uint8_t duty)
@@ -139,6 +151,28 @@ void avr8_timer_0_set_duty(const avr8_timer_0_config_t *cfg, uint8_t duty)
 uint8_t avr8_timer_0_get_top()
 {
     return avr8_timer_0_top;
+}
+
+float avr8_timer_0_get_tick_us(const avr8_timer_0_config_t *cfg)
+{
+    float tick = ((float)cfg->prescaler / (float)F_CPU) * 1000000.0f;
+    return tick;
+}
+
+uint8_t avr8_timer_0_get_mode_factor(const avr8_timer_0_config_t *cfg)
+{
+    switch (cfg->mode)
+    {
+    case PWM0_PHASE_CORRECT:
+    case PWM0_PHASE_CORRECT_OCR:
+        return 2;
+    case PWM0_FAST:
+    case PWM0_FAST_OCR:
+    case PWM0_CTC:
+    case PWM0_NORMAL:
+    default:
+        return 1;
+    }
 }
 
 /*===================== TIMER1 =====================*/
@@ -361,6 +395,41 @@ uint16_t avr8_timer_1_get_top()
     return avr8_timer_1_top;
 }
 
+float avr8_timer_1_get_tick_us(const avr8_timer_1_config_t *cfg)
+{
+    float tick = ((float)cfg->prescaler / (float)F_CPU) * 1000000.0f;
+    return tick;
+}
+
+uint8_t avr8_timer_1_get_mode_factor(const avr8_timer_1_config_t *cfg)
+{
+    switch (cfg->mode)
+    {
+    /* Phase-correct 8/9/10-bit */
+    case PWM1_PHASE_CORRECT_8BIT:
+    case PWM1_PHASE_CORRECT_9BIT:
+    case PWM1_PHASE_CORRECT_10BIT:
+    /* Phase/Freq-correct and Phase-correct using ICR1 or OCR1A as TOP */
+    case PWM1_PHASE_FREQ_CORRECT_ICR1:
+    case PWM1_PHASE_FREQ_CORRECT_OCR1A:
+    case PWM1_PHASE_CORRECT_ICR1:
+    case PWM1_PHASE_CORRECT_OCR1A:
+        return 2.0f;
+
+    /* Fast PWM modes, CTC, normal: single-slope behaviour */
+    case PWM1_NORMAL:
+    case PWM1_CTC_OCR1A:
+    case PWM1_FAST_8BIT:
+    case PWM1_FAST_9BIT:
+    case PWM1_FAST_10BIT:
+    case PWM1_CTC_ICR1:
+    case PWM1_FAST_ICR1:
+    case PWM1_FAST_OCR1A:
+    default:
+        return 1.0f;
+    }
+}
+
 /*===================== TIMER2 =====================*/
 
 uint8_t avr8_timer_2_top = 0;
@@ -505,4 +574,29 @@ void avr8_timer_2_init(const avr8_timer_2_config_t *cfg)
 uint8_t avr8_timer_2_get_top()
 {
     return avr8_timer_2_top;
+}
+
+float avr8_timer_2_get_tick_us(const avr8_timer_2_config_t *cfg)
+{
+    float tick = ((float)cfg->prescaler / (float)F_CPU) * 1000000.0f;
+    return tick;
+}
+
+uint8_t avr8_timer_2_get_mode_factor(const avr8_timer_2_config_t *cfg)
+{
+    switch (cfg->mode)
+    {
+    /* Phase-correct (up/down) */
+    case PWM2_PHASE_CORRECT:
+    case PWM2_PHASE_CORRECT_OCR: // TOP = OCR2A, still up/down
+        return 2.0f;
+
+    /* Fast, CTC, normal: single-slope behaviour */
+    case PWM2_NORMAL:
+    case PWM2_CTC:
+    case PWM2_FAST:
+    case PWM2_FAST_OCR: // TOP = OCR2A but single-slope
+    default:
+        return 1.0f;
+    }
 }
