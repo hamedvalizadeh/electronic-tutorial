@@ -32,8 +32,8 @@ typedef struct
     bool inverting;
 } avr8_timer_0_config_t;
 
+void avr8_timer_0_set_pulse_ticks(const avr8_timer_0_config_t *cfg, uint8_t pulse_ticks);
 void avr8_timer_0_set_duty(const avr8_timer_0_config_t *cfg, uint8_t duty);
-void avr8_timer_0_set_duty_percent(const avr8_timer_0_config_t *cfg, uint8_t percent);
 void avr8_timer_0_init(const avr8_timer_0_config_t *cfg);
 uint8_t avr8_timer_0_get_top();
 
@@ -73,8 +73,8 @@ typedef struct
     bool inverting;
 } avr8_timer_1_config_t;
 
-void avr8_timer_1_set_duty(const avr8_timer_1_config_t *cfg, uint16_t duty);
-void avr8_timer_1_set_duty_percent(const avr8_timer_1_config_t *cfg, uint8_t percent);
+void avr8_timer_1_set_pulse_ticks(const avr8_timer_1_config_t *cfg, uint16_t pulse_ticks);
+void avr8_timer_1_set_duty(const avr8_timer_1_config_t *cfg, uint8_t duty);
 void avr8_timer_1_init(const avr8_timer_1_config_t *cfg);
 uint16_t avr8_timer_1_get_top();
 
@@ -105,8 +105,8 @@ typedef struct
     bool inverting;
 } avr8_timer_2_config_t;
 
+void avr8_timer_2_set_duty_pulse_ticks(const avr8_timer_2_config_t *cfg, uint8_t pulse_ticks);
 void avr8_timer_2_set_duty(const avr8_timer_2_config_t *cfg, uint8_t duty);
-void avr8_timer_2_set_duty_percent(const avr8_timer_2_config_t *cfg, uint8_t percent);
 void avr8_timer_2_init(const avr8_timer_2_config_t *cfg);
 uint8_t avr8_timer_2_get_top();
 

@@ -52,55 +52,55 @@ int main(void)
 
     while (1)
     {
-        avr8_timer_0_set_duty(&timer0_cfg, 7);   // 0°
-        avr8_timer_1_set_duty(&timer1_cfg, 249); // 0°
+        avr8_timer_0_set_pulse_ticks(&timer0_cfg, 7);   // 0°
+        avr8_timer_1_set_pulse_ticks(&timer1_cfg, 249); // 0°
         _delay_ms(1000);
 
-        avr8_timer_0_set_duty(&timer0_cfg, 8);   // 4°
-        avr8_timer_1_set_duty(&timer1_cfg, 255); // 4°
+        avr8_timer_0_set_pulse_ticks(&timer0_cfg, 8);   // 4°
+        avr8_timer_1_set_pulse_ticks(&timer1_cfg, 255); // 4°
         _delay_ms(1000);
 
-        avr8_timer_0_set_duty(&timer0_cfg, 9);   // 27°
-        avr8_timer_1_set_duty(&timer1_cfg, 287); // 90°
+        avr8_timer_0_set_pulse_ticks(&timer0_cfg, 9);   // 27°
+        avr8_timer_1_set_pulse_ticks(&timer1_cfg, 287); // 90°
         _delay_ms(1000);
 
-        avr8_timer_0_set_duty(&timer0_cfg, 10);  // 50°
-        avr8_timer_1_set_duty(&timer1_cfg, 319); // 50°
+        avr8_timer_0_set_pulse_ticks(&timer0_cfg, 10);  // 50°
+        avr8_timer_1_set_pulse_ticks(&timer1_cfg, 319); // 50°
         _delay_ms(1000);
 
-        avr8_timer_0_set_duty(&timer0_cfg, 11);  // 73°
-        avr8_timer_1_set_duty(&timer1_cfg, 351); // 73°
+        avr8_timer_0_set_pulse_ticks(&timer0_cfg, 11);  // 73°
+        avr8_timer_1_set_pulse_ticks(&timer1_cfg, 351); // 73°
         _delay_ms(1000);
 
-        avr8_timer_0_set_duty(&timer0_cfg, 12);  // 96°
-        avr8_timer_1_set_duty(&timer1_cfg, 383); // 96°
+        avr8_timer_0_set_pulse_ticks(&timer0_cfg, 12);  // 96°
+        avr8_timer_1_set_pulse_ticks(&timer1_cfg, 383); // 96°
         _delay_ms(1000);
 
-        avr8_timer_0_set_duty(&timer0_cfg, 13);  // 119
-        avr8_timer_1_set_duty(&timer1_cfg, 415); // 50°
+        avr8_timer_0_set_pulse_ticks(&timer0_cfg, 13);  // 119
+        avr8_timer_1_set_pulse_ticks(&timer1_cfg, 415); // 50°
         _delay_ms(1000);
 
-        avr8_timer_0_set_duty(&timer0_cfg, 14);  // 142°
-        avr8_timer_1_set_duty(&timer1_cfg, 447); // 142°
+        avr8_timer_0_set_pulse_ticks(&timer0_cfg, 14);  // 142°
+        avr8_timer_1_set_pulse_ticks(&timer1_cfg, 447); // 142°
         _delay_ms(1000);
 
-        avr8_timer_0_set_duty(&timer0_cfg, 15);  // 165
-        avr8_timer_1_set_duty(&timer1_cfg, 479); // 165°
+        avr8_timer_0_set_pulse_ticks(&timer0_cfg, 15);  // 165
+        avr8_timer_1_set_pulse_ticks(&timer1_cfg, 479); // 165°
         _delay_ms(1000);
 
-        avr8_timer_0_set_duty(&timer0_cfg, 16);  // 180°
-        avr8_timer_1_set_duty(&timer1_cfg, 500); // 180°
+        avr8_timer_0_set_pulse_ticks(&timer0_cfg, 16);  // 180°
+        avr8_timer_1_set_pulse_ticks(&timer1_cfg, 500); // 180°
         _delay_ms(1000);
 
         for (duty = 0; duty <= 100; duty++)
         {
-            avr8_timer_2_set_duty_percent(&timer2_cfg, duty);
+            avr8_timer_2_set_duty(&timer2_cfg, duty);
             _delay_ms(10);
         }
 
         for (duty = 100; duty > 0; duty--)
         {
-            avr8_timer_2_set_duty_percent(&timer2_cfg, duty);
+            avr8_timer_2_set_duty(&timer2_cfg, duty);
             _delay_ms(10);
         }
     }
