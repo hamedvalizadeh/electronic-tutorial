@@ -105,7 +105,7 @@ typedef struct
     bool inverting;
 } avr8_timer_2_config_t;
 
-void avr8_timer_2_set_duty_pulse_ticks(const avr8_timer_2_config_t *cfg, uint8_t pulse_ticks);
+void avr8_timer_2_set_pulse_ticks(const avr8_timer_2_config_t *cfg, uint8_t pulse_ticks);
 void avr8_timer_2_set_duty(const avr8_timer_2_config_t *cfg, uint8_t duty);
 void avr8_timer_2_init(const avr8_timer_2_config_t *cfg);
 uint8_t avr8_timer_2_get_top();

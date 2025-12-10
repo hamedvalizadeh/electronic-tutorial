@@ -112,28 +112,28 @@ void avr8_timer_0_init(const avr8_timer_0_config_t *cfg)
     avr8_timer_0_set_compare_mode(cfg);
     avr8_timer_0_set_top(cfg);
     avr8_timer_0_set_compare_inverting(cfg);
-    avr8_timer_0_set_duty_percent(cfg, cfg->duty_percent);
+    avr8_timer_0_set_duty(cfg, cfg->duty_percent);
     avr8_timer_0_set_prescaler(cfg);
+}
+
+void avr8_timer_0_set_pulse_ticks(const avr8_timer_0_config_t *cfg, uint8_t pulse_ticks)
+{
+    if (cfg->output == PWM0_OC0A)
+        OCR0A = pulse_ticks;
+    else
+        OCR0B = pulse_ticks;
 }
 
 void avr8_timer_0_set_duty(const avr8_timer_0_config_t *cfg, uint8_t duty)
 {
-    if (cfg->output == PWM0_OC0A)
-        OCR0A = duty;
-    else
-        OCR0B = duty;
-}
-
-void avr8_timer_0_set_duty_percent(const avr8_timer_0_config_t *cfg, uint8_t percent)
-{
-    if (percent > 100)
+    if (duty > 100)
     {
-        percent = 100;
+        duty = 100;
     }
 
-    uint8_t duty_value = avr8_timer_0_top * percent / 100;
+    uint8_t pulse_ticks = avr8_timer_0_top * duty / 100;
 
-    avr8_timer_0_set_duty(cfg, duty_value);
+    avr8_timer_0_set_pulse_ticks(cfg, pulse_ticks);
 }
 
 uint8_t avr8_timer_0_get_top()
@@ -295,7 +295,7 @@ bool avr8_timer_1_is_ocr1a_top(const avr8_timer_1_config_t *cfg)
             cfg->mode == PWM1_PHASE_FREQ_CORRECT_OCR1A);
 }
 
-void avr8_timer_1_set_duty(const avr8_timer_1_config_t *cfg, uint16_t duty_value)
+void avr8_timer_1_set_pulse_ticks(const avr8_timer_1_config_t *cfg, uint16_t pulse_ticks)
 {
     if (cfg->output == PWM1_OC1A)
     {
@@ -308,7 +308,7 @@ void avr8_timer_1_set_duty(const avr8_timer_1_config_t *cfg, uint16_t duty_value
         {
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
             {
-                OCR1A = duty_value;
+                OCR1A = pulse_ticks;
             }
         }
     }
@@ -316,21 +316,21 @@ void avr8_timer_1_set_duty(const avr8_timer_1_config_t *cfg, uint16_t duty_value
     {
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
-            OCR1B = duty_value;
+            OCR1B = pulse_ticks;
         }
     }
 }
 
-void avr8_timer_1_set_duty_percent(const avr8_timer_1_config_t *cfg, uint8_t percent)
+void avr8_timer_1_set_duty(const avr8_timer_1_config_t *cfg, uint8_t duty)
 {
-    if (percent > 100)
+    if (duty > 100)
     {
-        percent = 100;
+        duty = 100;
     }
 
-    uint16_t duty_value = (uint32_t)avr8_timer_1_top * percent / 100;
+    uint16_t pulse_ticks = (uint32_t)avr8_timer_1_top * duty / 100;
 
-    avr8_timer_1_set_duty(cfg, duty_value);
+    avr8_timer_1_set_pulse_ticks(cfg, pulse_ticks);
 }
 
 void avr8_timer_1_init(const avr8_timer_1_config_t *cfg)
@@ -352,7 +352,7 @@ void avr8_timer_1_init(const avr8_timer_1_config_t *cfg)
     avr8_timer_1_set_compare_mode(cfg);
     avr8_timer_1_set_top(cfg);
     avr8_timer_1_set_compare_inverting(cfg);
-    avr8_timer_1_set_duty_percent(cfg, cfg->duty_percent);
+    avr8_timer_1_set_duty(cfg, cfg->duty_percent);
     avr8_timer_1_set_prescaler(cfg);
 }
 
@@ -460,7 +460,7 @@ void avr8_timer_2_set_prescaler(const avr8_timer_2_config_t *cfg)
     }
 }
 
-void avr8_timer_2_set_duty(const avr8_timer_2_config_t *cfg, uint8_t duty)
+void avr8_timer_2_set_pulse_ticks(const avr8_timer_2_config_t *cfg, uint8_t duty)
 {
     if (cfg->output == PWM2_OC2A)
         OCR2A = duty;
@@ -468,16 +468,16 @@ void avr8_timer_2_set_duty(const avr8_timer_2_config_t *cfg, uint8_t duty)
         OCR2B = duty;
 }
 
-void avr8_timer_2_set_duty_percent(const avr8_timer_2_config_t *cfg, uint8_t percent)
+void avr8_timer_2_set_duty(const avr8_timer_2_config_t *cfg, uint8_t duty)
 {
-    if (percent > 100)
+    if (duty > 100)
     {
-        percent = 100;
+        duty = 100;
     }
 
-    uint8_t duty_value = avr8_timer_2_top * percent / 100;
+    uint8_t pulse_ticks = avr8_timer_2_top * duty / 100;
 
-    avr8_timer_2_set_duty(cfg, duty_value);
+    avr8_timer_2_set_pulse_ticks(cfg, pulse_ticks);
 }
 
 void avr8_timer_2_init(const avr8_timer_2_config_t *cfg)
@@ -498,7 +498,7 @@ void avr8_timer_2_init(const avr8_timer_2_config_t *cfg)
     avr8_timer_2_set_compare_mode(cfg);
     avr8_timer_2_set_top(cfg);
     avr8_timer_2_set_compare_inverting(cfg);
-    avr8_timer_2_set_duty_percent(cfg, cfg->duty_percent);
+    avr8_timer_2_set_duty(cfg, cfg->duty_percent);
     avr8_timer_2_set_prescaler(cfg);
 }
 

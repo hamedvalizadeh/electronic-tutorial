@@ -460,7 +460,7 @@ void avr8_timer_2_set_prescaler(const avr8_timer_2_config_t *cfg)
     }
 }
 
-void avr8_timer_2_set_duty_pulse_ticks(const avr8_timer_2_config_t *cfg, uint8_t duty)
+void avr8_timer_2_set_pulse_ticks(const avr8_timer_2_config_t *cfg, uint8_t duty)
 {
     if (cfg->output == PWM2_OC2A)
         OCR2A = duty;
@@ -477,7 +477,7 @@ void avr8_timer_2_set_duty(const avr8_timer_2_config_t *cfg, uint8_t duty)
 
     uint8_t pulse_ticks = avr8_timer_2_top * duty / 100;
 
-    avr8_timer_2_set_duty_pulse_ticks(cfg, pulse_ticks);
+    avr8_timer_2_set_pulse_ticks(cfg, pulse_ticks);
 }
 
 void avr8_timer_2_init(const avr8_timer_2_config_t *cfg)
